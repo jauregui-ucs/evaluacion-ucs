@@ -18,32 +18,24 @@
         .btn-danger:hover { background-color: #c0392b; }
         .btn-success { background-color: #2ecc71; }
         .btn-secondary { background-color: #7f8c8d; }
-        
-        /* Tablas adaptables para móvil */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; font-size: 14px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background-color: #2c3e50; color: white; }
-        
         .hidden { display: none; }
-        
-        /* Botones de navegación adaptables */
         .nav-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
         .nav-buttons button { flex: 1; min-width: 130px; margin-top: 0; padding: 10px; font-size: 14px; }
-        
         .alert { padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; margin-bottom: 15px; text-align: center; font-weight: bold; display: none; }
-        
-        /* Modal de confirmación */
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #fff; margin: 30% auto; padding: 20px; border-radius: 8px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         .modal-buttons button { margin: 0; }
-        
-        @media (max-width: 600px) {
-            .nav-buttons { flex-direction: column; }
-            .nav-buttons button { width: 100%; }
-        }
+        @media (max-width: 600px) { .nav-buttons { flex-direction: column; } .nav-buttons button { width: 100%; } }
     </style>
+    
+    <!-- Librerías de Firebase (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -69,11 +61,11 @@
     <h2>Registro (Paso 1/2)</h2>
     <div class="form-group">
         <label>Correo Electrónico:</label>
-        <input type="email" id="regEmail" placeholder="Correo electrónico">
+        <input type="email" id="regEmail" placeholder="Su correo personal">
     </div>
     <div class="form-group">
         <label>Contraseña:</label>
-        <input type="password" id="regPassword" placeholder="Contraseña">
+        <input type="password" id="regPassword" placeholder="Cree una contraseña">
     </div>
     <button class="btn-success" onclick="goToRegisterStep2()">Siguiente Paso</button>
     <button class="btn-secondary" onclick="showSection('login-section')">Regresar</button>
@@ -175,7 +167,6 @@
     </div>
     <h2>Administración</h2>
     
-    <!-- Filtros generales -->
     <div class="form-group" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
         <select id="filtroSeccion" onchange="actualizarTablasAdmin()">
             <option value="Todas">Todas las Secciones</option>
@@ -191,19 +182,12 @@
         </select>
     </div>
 
-    <!-- Vistas del admin -->
     <div id="admin-asistencias" class="admin-vista">
         <h3>Registro de Asistencias</h3>
         <button class="btn-success" onclick="exportarWord('tablaAsistencias', 'Asistencias_UCS')">Descargar Word</button>
         <div class="table-responsive">
             <table id="tablaAsistencias">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Cédula</th>
-                        <th>Nombres y Apellidos</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Fecha</th><th>Cédula</th><th>Nombres y Apellidos</th></tr></thead>
                 <tbody id="bodyAsistencias"></tbody>
             </table>
         </div>
@@ -214,15 +198,7 @@
         <button class="btn-success" onclick="exportarWord('tablaNotas', 'Notas_UCS')">Descargar Word</button>
         <div class="table-responsive">
             <table id="tablaNotas">
-                <thead>
-                    <tr>
-                        <th>Cédula</th>
-                        <th>Nombres y Apellidos</th>
-                        <th>Evaluación</th>
-                        <th>Nota (1-20)</th>
-                        <th>Estatus</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Evaluación</th><th>Nota (1-20)</th><th>Estatus</th></tr></thead>
                 <tbody id="bodyNotas"></tbody>
             </table>
         </div>
@@ -232,15 +208,7 @@
         <h3>Credenciales Registradas</h3>
         <div class="table-responsive">
             <table id="tablaCredenciales">
-                <thead>
-                    <tr>
-                        <th>Cédula</th>
-                        <th>Nombres y Apellidos</th>
-                        <th>Sección</th>
-                        <th>Correo</th>
-                        <th>Contraseña</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Sección</th><th>Correo</th><th>Contraseña</th></tr></thead>
                 <tbody id="bodyCredenciales"></tbody>
             </table>
         </div>
@@ -249,7 +217,7 @@
     <div id="admin-config" class="admin-vista hidden">
         <h3>Estado del Sistema</h3>
         <p style="text-align: center;">Controla si los estudiantes pueden guardar datos.</p>
-        <button id="btnToggleSystem" class="btn-success" onclick="toggleSystem()">Estado Actual: DESCONOCIDO</button>
+        <button id="btnToggleSystem" class="btn-success" onclick="toggleSystem()">Cargando estado...</button>
     </div>
 </div>
 
@@ -266,6 +234,20 @@
 </div>
 
 <script>
+    // Configuración oficial de tu proyecto Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCMl9TL7x-EN6GMTvznwl_ZUZkAJMXIYN0",
+        authDomain: "evaluacion-ucs.firebaseapp.com",
+        projectId: "evaluacion-ucs",
+        storageBucket: "evaluacion-ucs.firebasestorage.app",
+        messagingSenderId: "262363227627",
+        appId: "1:262363227627:web:ea2933990ec05ef2a2a5ae"
+    };
+    
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const dbEstudiantes = {
         "31244041": { nombre: "MARLYNG YANEIDY JAIMES BLANCO", pnf: "MEDICINA", seccion: "SECCION A" },
         "34243927": { nombre: "JOSE DAVID CONTRERAS CONTRERAS", pnf: "MEDICINA", seccion: "SECCION A" },
@@ -276,15 +258,11 @@
         "24611897": { nombre: "JOEL ALEXANDER CASTRO CONTRERAS", pnf: "MEDICINA", seccion: "SECCION C" },
         "20369899": { nombre: "MARIA ISABEL PEREZ LABRADOR", pnf: "ENFERMERIA", seccion: "SECCION D" },
         "32581983": { nombre: "MANUEL ANTONIO MORA ARELLANO", pnf: "MEDICINA", seccion: "SECCION D" }
-        // Puedes agregar aquí el resto de la lista de cédulas.
     };
 
     let currentUser = null;
     let accionPendiente = null;
-
-    if(localStorage.getItem('sistemaActivo') === null) {
-        localStorage.setItem('sistemaActivo', 'false');
-    }
+    let sistemaActivoGlobal = false;
 
     function showSection(sectionId) {
         document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
@@ -292,11 +270,14 @@
         if(sectionId === 'student-panel') verificarEstadoSistema();
     }
 
-    function verificarEstadoSistema() {
-        const activo = localStorage.getItem('sistemaActivo') === 'true';
+    // Funciones de la Base de Datos en la Nube
+    async function verificarEstadoSistema() {
+        const doc = await db.collection('config').doc('estado').get();
+        if(doc.exists) sistemaActivoGlobal = doc.data().activo;
+        
         const alerta = document.getElementById('system-status-alert');
         const botones = document.querySelectorAll('.action-btn');
-        if(!activo) {
+        if(!sistemaActivoGlobal) {
             alerta.style.display = 'block';
             botones.forEach(btn => { btn.disabled = true; btn.style.backgroundColor = '#ccc'; });
         } else {
@@ -332,8 +313,8 @@
         }
     }
 
-    function completarRegistro() {
-        const email = document.getElementById('regEmail').value;
+    async function completarRegistro() {
+        const email = document.getElementById('regEmail').value.toLowerCase();
         const pass = document.getElementById('regPassword').value;
         const ced = document.getElementById('regCedula').value;
         const nom = document.getElementById('regNombre').value.toUpperCase();
@@ -342,17 +323,21 @@
 
         if(!ced || !nom || !sec) { alert("Por favor complete los datos personales."); return; }
 
-        let usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
-        if(usuarios[email]) { alert("Este correo ya se encuentra registrado."); return; }
+        // Verificar si existe en la nube
+        const userDoc = await db.collection('usuarios').doc(email).get();
+        if(userDoc.exists) { alert("Este correo ya se encuentra registrado."); return; }
 
-        usuarios[email] = { clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf };
-        localStorage.setItem('usuariosUCS', JSON.stringify(usuarios));
+        // Guardar en la nube
+        await db.collection('usuarios').doc(email).set({
+            clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf
+        });
+        
         alert("¡Registro exitoso! Ya puede iniciar sesión.");
         showSection('login-section');
     }
 
-    function login() {
-        const email = document.getElementById('loginEmail').value;
+    async function login() {
+        const email = document.getElementById('loginEmail').value.toLowerCase();
         const pass = document.getElementById('loginPassword').value;
 
         if (email === 'circuitosietejauregui@gmail.com' && pass === 'Universal11!!') {
@@ -363,9 +348,10 @@
             return;
         }
 
-        let usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
-        if (usuarios[email] && usuarios[email].clave === pass) {
-            currentUser = usuarios[email];
+        // Buscar en la nube
+        const userDoc = await db.collection('usuarios').doc(email).get();
+        if (userDoc.exists && userDoc.data().clave === pass) {
+            currentUser = userDoc.data();
             document.getElementById('student-name').innerText = currentUser.nombre;
             document.getElementById('student-sec').innerText = currentUser.seccion;
             showSection('student-panel');
@@ -382,8 +368,7 @@
     }
 
     function prepararGuardado(tipo) {
-        if(localStorage.getItem('sistemaActivo') !== 'true') return;
-
+        if(!sistemaActivoGlobal) return;
         accionPendiente = tipo;
         let msg = "";
         
@@ -415,27 +400,27 @@
         cerrarModal();
     }
 
-    function guardarAsistencia() {
+    async function guardarAsistencia() {
         const fecha = document.getElementById('fechaClase').value;
         const materia = document.getElementById('materiaAsistencia').value;
-        let asistencias = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
         
-        asistencias.push({ fecha: fecha, cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia });
-        localStorage.setItem('asistenciasUCS', JSON.stringify(asistencias));
-        alert("¡Asistencia registrada correctamente!");
+        await db.collection('asistencias').add({ 
+            fecha: fecha, cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia 
+        });
+        alert("¡Asistencia enviada a la nube correctamente!");
         showSection('student-panel');
     }
 
-    function guardarNota() {
+    async function guardarNota() {
         const materia = document.getElementById('materiaNota').value;
         const eval = document.getElementById('numEvaluacion').value;
         const nota = parseInt(document.getElementById('valorNota').value);
-        let notas = JSON.parse(localStorage.getItem('notasUCS')) || [];
         let estatus = nota < 11 ? "Reprobado" : "Aprobado";
 
-        notas.push({ cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia, evaluacion: eval, valor: nota, estatus: estatus });
-        localStorage.setItem('notasUCS', JSON.stringify(notas));
-        alert("¡Nota guardada correctamente!");
+        await db.collection('notas').add({ 
+            cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia, evaluacion: eval, valor: nota, estatus: estatus 
+        });
+        alert("¡Nota enviada a la nube correctamente!");
         showSection('student-panel');
     }
 
@@ -444,15 +429,21 @@
         document.getElementById(id).classList.remove('hidden');
     }
 
-    function toggleSystem() {
-        const estadoActual = localStorage.getItem('sistemaActivo') === 'true';
-        localStorage.setItem('sistemaActivo', !estadoActual);
+    async function toggleSystem() {
+        const doc = await db.collection('config').doc('estado').get();
+        let estadoActual = false;
+        if(doc.exists) estadoActual = doc.data().activo;
+        
+        await db.collection('config').doc('estado').set({ activo: !estadoActual });
         actualizarBotonToggle();
     }
 
-    function actualizarBotonToggle() {
+    async function actualizarBotonToggle() {
         const btn = document.getElementById('btnToggleSystem');
-        const activo = localStorage.getItem('sistemaActivo') === 'true';
+        const doc = await db.collection('config').doc('estado').get();
+        let activo = false;
+        if(doc.exists) activo = doc.data().activo;
+
         if(activo) {
             btn.innerText = "Sistema HABILITADO (Bloquear)";
             btn.className = "btn-danger";
@@ -462,24 +453,26 @@
         }
     }
 
-    function actualizarTablasAdmin() {
+    async function actualizarTablasAdmin() {
         const secFiltro = document.getElementById('filtroSeccion').value;
         const matFiltro = document.getElementById('filtroMateria').value;
 
-        // Asistencias (Columnas limpias)
-        const asist = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
+        // Descargar Asistencias de Firebase
+        const asistSnap = await db.collection('asistencias').get();
         let htmlA = '';
-        asist.forEach(a => {
+        asistSnap.forEach(doc => {
+            let a = doc.data();
             if((secFiltro === "Todas" || a.seccion === secFiltro) && (matFiltro === "Todas" || a.materia === matFiltro)){
                 htmlA += `<tr><td>${a.fecha}</td><td>${a.cedula}</td><td>${a.nombre}</td></tr>`;
             }
         });
         document.getElementById('bodyAsistencias').innerHTML = htmlA;
 
-        // Notas (Columnas limpias)
-        const not = JSON.parse(localStorage.getItem('notasUCS')) || [];
+        // Descargar Notas de Firebase
+        const notasSnap = await db.collection('notas').get();
         let htmlN = '';
-        not.forEach(n => {
+        notasSnap.forEach(doc => {
+            let n = doc.data();
             if((secFiltro === "Todas" || n.seccion === secFiltro) && (matFiltro === "Todas" || n.materia === matFiltro)){
                 let color = n.valor < 11 ? 'color: red;' : 'color: green;';
                 htmlN += `<tr><td>${n.cedula}</td><td>${n.nombre}</td><td>${n.evaluacion}</td><td style="${color}">${n.valor}</td><td style="${color}; font-weight:bold;">${n.estatus}</td></tr>`;
@@ -487,15 +480,16 @@
         });
         document.getElementById('bodyNotas').innerHTML = htmlN;
 
-        // Credenciales
-        const usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
+        // Descargar Usuarios de Firebase
+        const usuariosSnap = await db.collection('usuarios').get();
         let htmlC = '';
-        for (let email in usuarios) {
-            let u = usuarios[email];
+        usuariosSnap.forEach(doc => {
+            let u = doc.data();
+            let email = doc.id;
             if(secFiltro === "Todas" || u.seccion === secFiltro) {
                 htmlC += `<tr><td>${u.cedula}</td><td>${u.nombre}</td><td>${u.seccion}</td><td>${email}</td><td>${u.clave}</td></tr>`;
             }
-        }
+        });
         document.getElementById('bodyCredenciales').innerHTML = htmlC;
     }
 
