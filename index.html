@@ -446,4 +446,76 @@
 
     function toggleSystem() {
         const estadoActual = localStorage.getItem('sistemaActivo') === 'true';
-        localStorage.setItem('sistemaActivo', !
+        localStorage.setItem('sistemaActivo', !estadoActual);
+        actualizarBotonToggle();
+    }
+
+    function actualizarBotonToggle() {
+        const btn = document.getElementById('btnToggleSystem');
+        const activo = localStorage.getItem('sistemaActivo') === 'true';
+        if(activo) {
+            btn.innerText = "Sistema HABILITADO (Bloquear)";
+            btn.className = "btn-danger";
+        } else {
+            btn.innerText = "Sistema BLOQUEADO (Habilitar)";
+            btn.className = "btn-success";
+        }
+    }
+
+    function actualizarTablasAdmin() {
+        const secFiltro = document.getElementById('filtroSeccion').value;
+        const matFiltro = document.getElementById('filtroMateria').value;
+
+        // Asistencias (Columnas limpias)
+        const asist = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
+        let htmlA = '';
+        asist.forEach(a => {
+            if((secFiltro === "Todas" || a.seccion === secFiltro) && (matFiltro === "Todas" || a.materia === matFiltro)){
+                htmlA += `<tr><td>${a.fecha}</td><td>${a.cedula}</td><td>${a.nombre}</td></tr>`;
+            }
+        });
+        document.getElementById('bodyAsistencias').innerHTML = htmlA;
+
+        // Notas (Columnas limpias)
+        const not = JSON.parse(localStorage.getItem('notasUCS')) || [];
+        let htmlN = '';
+        not.forEach(n => {
+            if((secFiltro === "Todas" || n.seccion === secFiltro) && (matFiltro === "Todas" || n.materia === matFiltro)){
+                let color = n.valor < 11 ? 'color: red;' : 'color: green;';
+                htmlN += `<tr><td>${n.cedula}</td><td>${n.nombre}</td><td>${n.evaluacion}</td><td style="${color}">${n.valor}</td><td style="${color}; font-weight:bold;">${n.estatus}</td></tr>`;
+            }
+        });
+        document.getElementById('bodyNotas').innerHTML = htmlN;
+
+        // Credenciales
+        const usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
+        let htmlC = '';
+        for (let email in usuarios) {
+            let u = usuarios[email];
+            if(secFiltro === "Todas" || u.seccion === secFiltro) {
+                htmlC += `<tr><td>${u.cedula}</td><td>${u.nombre}</td><td>${u.seccion}</td><td>${email}</td><td>${u.clave}</td></tr>`;
+            }
+        }
+        document.getElementById('bodyCredenciales').innerHTML = htmlC;
+    }
+
+    function exportarWord(tableID, filename = ''){
+        var downloadLink;
+        var dataType = 'application/vnd.ms-word';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        filename = filename ? filename+'.doc' : 'documento.doc';
+        downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        if(navigator.msSaveOrOpenBlob){
+            var blob = new Blob(['\ufeff', tableHTML], { type: dataType });
+            navigator.msSaveOrOpenBlob( blob, filename);
+        }else{
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            downloadLink.download = filename;
+            downloadLink.click();
+        }
+    }
+</script>
+</body>
+</html>
