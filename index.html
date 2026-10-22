@@ -446,15 +446,4 @@
 
     function toggleSystem() {
         const estadoActual = localStorage.getItem('sistemaActivo') === 'true';
-        localStorage.setItem('sistemaActivo', !estadoActual);
-        actualizarBotonToggle();
-    }
-
-    function actualizarBotonToggle() {
-        const btn = document.getElementById('btnToggleSystem');
-        const activo = localStorage.getItem('sistemaActivo') === 'true';
-        if(activo) {
-            btn.innerText = "Sistema HABILITADO (Bloquear)";
-            btn.className = "btn-danger";
-        } else {
-            btn.innerText = "Sistema BLOQUEADO (Habilit
+        localStorage.setItem('sistemaActivo', !
