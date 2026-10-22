@@ -2,40 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema UCS - Asistencia y Notas</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
-        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-x: auto; }
-        h1, h2, h3 { color: #2c3e50; text-align: center; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 90%; }
+        h1 { color: #2c3e50; text-align: center; font-size: 24px; }
+        h2, h3 { color: #2c3e50; text-align: center; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, select, button { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 15px; font-weight: bold; }
         button:hover { background-color: #2980b9; }
         .btn-danger { background-color: #e74c3c; }
         .btn-danger:hover { background-color: #c0392b; }
         .btn-success { background-color: #2ecc71; }
         .btn-secondary { background-color: #7f8c8d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        
+        /* Tablas adaptables para móvil */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background-color: #2c3e50; color: white; }
+        
         .hidden { display: none; }
-        .nav-buttons { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
-        .nav-buttons button { flex: 1; min-width: 120px; margin-top: 0; }
-        .alert { padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; margin-bottom: 15px; display: none; text-align: center; font-weight: bold; }
+        
+        /* Botones de navegación adaptables */
+        .nav-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .nav-buttons button { flex: 1; min-width: 130px; margin-top: 0; padding: 10px; font-size: 14px; }
+        
+        .alert { padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; margin-bottom: 15px; text-align: center; font-weight: bold; display: none; }
         
         /* Modal de confirmación */
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 20% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px; text-align: center; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fff; margin: 30% auto; padding: 20px; border-radius: 8px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .modal-buttons button { margin: 0; }
+        
+        @media (max-width: 600px) {
+            .nav-buttons { flex-direction: column; }
+            .nav-buttons button { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
+<!-- INICIAR SESION -->
 <div class="container" id="login-section">
     <h1>UCS - Curso Introductorio</h1>
-    <p style="text-align: center;">PNF Medicina, Enfermería y Odontología</p>
+    <p style="text-align: center; font-size: 14px;">PNF Medicina, Enfermería y Odontología</p>
     <h2>Iniciar Sesión</h2>
     <div class="form-group">
         <label>Correo Electrónico:</label>
@@ -49,24 +64,24 @@
     <button class="btn-secondary" onclick="showSection('register-step1')">Registrarse como Estudiante</button>
 </div>
 
-<!-- Registro Paso 1: Correo y Clave -->
+<!-- REGISTRO PASO 1 -->
 <div class="container hidden" id="register-step1">
-    <h2>Registro - Paso 1 (Credenciales)</h2>
+    <h2>Registro (Paso 1/2)</h2>
     <div class="form-group">
         <label>Correo Electrónico:</label>
         <input type="email" id="regEmail" placeholder="Su correo personal">
     </div>
     <div class="form-group">
-        <label>Contraseña:</label>
+        <label>Crear Contraseña:</label>
         <input type="password" id="regPassword" placeholder="Cree una contraseña">
     </div>
     <button class="btn-success" onclick="goToRegisterStep2()">Siguiente Paso</button>
     <button class="btn-secondary" onclick="showSection('login-section')">Regresar</button>
 </div>
 
-<!-- Registro Paso 2: Cédula y Datos -->
+<!-- REGISTRO PASO 2 -->
 <div class="container hidden" id="register-step2">
-    <h2>Registro - Paso 2 (Datos Personales)</h2>
+    <h2>Registro (Paso 2/2)</h2>
     <div class="form-group">
         <label>Cédula de Identidad:</label>
         <input type="number" id="regCedula" placeholder="Ej: 31244041" onblur="buscarCedulaRegistro()">
@@ -83,20 +98,19 @@
         <label>Sección Asignada:</label>
         <input type="text" id="regSeccion" readonly>
     </div>
-    <p id="regAviso" style="color: red; font-size: 12px; display: none;">Cédula no encontrada en la base de datos. Se han desbloqueado los campos para llenado manual.</p>
+    <p id="regAviso" style="color: red; font-size: 12px; display: none;">Cédula no encontrada. Por favor, llene los datos manualmente.</p>
     <button class="btn-success" onclick="completarRegistro()">Completar Registro</button>
     <button class="btn-secondary" onclick="showSection('register-step1')">Regresar</button>
 </div>
 
-<!-- Panel de Estudiante -->
+<!-- PANEL DE ESTUDIANTE -->
 <div class="container hidden" id="student-panel">
-    <div class="nav-buttons">
-        <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
-    </div>
+    <button class="btn-danger" onclick="logout()" style="margin-bottom: 15px;">Cerrar Sesión</button>
     <h2>Panel de Estudiante</h2>
-    <p>Bienvenido, <span id="student-name"></span> (<span id="student-sec"></span>)</p>
+    <p style="text-align: center; font-weight: bold;" id="student-name"></p>
+    <p style="text-align: center; color: #7f8c8d;" id="student-sec"></p>
     
-    <div id="system-status-alert" class="alert">EL ADMINISTRADOR AÚN NO HA HABILITADO LA CARGA DE DATOS.</div>
+    <div id="system-status-alert" class="alert">EL ADMINISTRADOR HA DESACTIVADO LA CARGA DE DATOS.</div>
 
     <div class="nav-buttons">
         <button onclick="showSection('student-asistencia')">Cargar Asistencia</button>
@@ -104,7 +118,7 @@
     </div>
 </div>
 
-<!-- Estudiante: Asistencia -->
+<!-- ESTUDIANTE: ASISTENCIA -->
 <div class="container hidden" id="student-asistencia">
     <button class="btn-secondary" onclick="showSection('student-panel')" style="margin-bottom: 15px;">⬅ Regresar al Menú</button>
     <h2>Cargar Asistencia</h2>
@@ -122,11 +136,10 @@
     <button class="btn-success action-btn" onclick="prepararGuardado('asistencia')">Guardar Asistencia</button>
 </div>
 
-<!-- Estudiante: Notas -->
+<!-- ESTUDIANTE: NOTAS -->
 <div class="container hidden" id="student-notas">
     <button class="btn-secondary" onclick="showSection('student-panel')" style="margin-bottom: 15px;">⬅ Regresar al Menú</button>
     <h2>Cargar Evaluación</h2>
-    <p>Nota: Las evaluaciones son en escala del 1 al 20. Cada una vale 25%. Reprobado < 11.</p>
     <div class="form-group">
         <label>Materia:</label>
         <select id="materiaNota">
@@ -135,13 +148,13 @@
         </select>
     </div>
     <div class="form-group">
-        <label>Evaluación (1 a 5):</label>
+        <label>Evaluación (25% c/u):</label>
         <select id="numEvaluacion">
-            <option value="Eval 1">Evaluación 1 (25%)</option>
-            <option value="Eval 2">Evaluación 2 (25%)</option>
-            <option value="Eval 3">Evaluación 3 (25%)</option>
-            <option value="Eval 4">Evaluación 4 (25%)</option>
-            <option value="Eval 5">Evaluación 5 (Extra/Recuperación)</option>
+            <option value="Eval 1">Evaluación 1</option>
+            <option value="Eval 2">Evaluación 2</option>
+            <option value="Eval 3">Evaluación 3</option>
+            <option value="Eval 4">Evaluación 4</option>
+            <option value="Eval 5">Evaluación 5 (Recuperación)</option>
         </select>
     </div>
     <div class="form-group">
@@ -151,19 +164,19 @@
     <button class="btn-success action-btn" onclick="prepararGuardado('nota')">Guardar Nota</button>
 </div>
 
-<!-- Panel de Administrador -->
+<!-- PANEL DE ADMINISTRADOR -->
 <div class="container hidden" id="admin-panel">
     <div class="nav-buttons">
         <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
-        <button onclick="verAdminSeccion('admin-asistencias')">Ver Asistencias</button>
-        <button onclick="verAdminSeccion('admin-notas')">Ver Notas</button>
-        <button class="btn-secondary" onclick="verAdminSeccion('admin-credenciales')">Credenciales Estudiantes</button>
+        <button onclick="verAdminSeccion('admin-asistencias')">Asistencias</button>
+        <button onclick="verAdminSeccion('admin-notas')">Notas</button>
+        <button class="btn-secondary" onclick="verAdminSeccion('admin-credenciales')">Credenciales</button>
         <button class="btn-secondary" onclick="verAdminSeccion('admin-config')">Configuración</button>
     </div>
-    <h2>Panel de Administración</h2>
+    <h2>Administración</h2>
     
     <!-- Filtros generales -->
-    <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <div class="form-group" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
         <select id="filtroSeccion" onchange="actualizarTablasAdmin()">
             <option value="Todas">Todas las Secciones</option>
             <option value="SECCION A">Sección A</option>
@@ -181,59 +194,61 @@
     <!-- Vistas del admin -->
     <div id="admin-asistencias" class="admin-vista">
         <h3>Registro de Asistencias</h3>
-        <button class="btn-success" onclick="exportarWord('tablaAsistencias', 'Asistencias_UCS')">Descargar Word (Asistencias)</button>
-        <table id="tablaAsistencias">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Cédula</th>
-                    <th>Nombre</th>
-                    <th>Sección</th>
-                    <th>Materia</th>
-                </tr>
-            </thead>
-            <tbody id="bodyAsistencias"></tbody>
-        </table>
+        <button class="btn-success" onclick="exportarWord('tablaAsistencias', 'Asistencias_UCS')">Descargar Word</button>
+        <div class="table-responsive">
+            <table id="tablaAsistencias">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cédula</th>
+                        <th>Nombres y Apellidos</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyAsistencias"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-notas" class="admin-vista hidden">
         <h3>Registro de Notas</h3>
-        <button class="btn-success" onclick="exportarWord('tablaNotas', 'Notas_UCS')">Descargar Word (Notas)</button>
-        <table id="tablaNotas">
-            <thead>
-                <tr>
-                    <th>Cédula</th>
-                    <th>Nombre</th>
-                    <th>Sección</th>
-                    <th>Materia</th>
-                    <th>Evaluación</th>
-                    <th>Nota (1-20)</th>
-                    <th>Estatus</th>
-                </tr>
-            </thead>
-            <tbody id="bodyNotas"></tbody>
-        </table>
+        <button class="btn-success" onclick="exportarWord('tablaNotas', 'Notas_UCS')">Descargar Word</button>
+        <div class="table-responsive">
+            <table id="tablaNotas">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombres y Apellidos</th>
+                        <th>Evaluación</th>
+                        <th>Nota (1-20)</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyNotas"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-credenciales" class="admin-vista hidden">
-        <h3>Credenciales Registradas (Uso exclusivo Admin)</h3>
-        <table id="tablaCredenciales">
-            <thead>
-                <tr>
-                    <th>Cédula</th>
-                    <th>Nombre</th>
-                    <th>Sección</th>
-                    <th>Correo</th>
-                    <th>Contraseña</th>
-                </tr>
-            </thead>
-            <tbody id="bodyCredenciales"></tbody>
-        </table>
+        <h3>Credenciales Registradas</h3>
+        <div class="table-responsive">
+            <table id="tablaCredenciales">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombres y Apellidos</th>
+                        <th>Sección</th>
+                        <th>Correo</th>
+                        <th>Contraseña</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyCredenciales"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-config" class="admin-vista hidden">
-        <h3>Configuración del Sistema</h3>
-        <p>Controla si los estudiantes pueden guardar datos en este momento.</p>
+        <h3>Estado del Sistema</h3>
+        <p style="text-align: center;">Controla si los estudiantes pueden guardar datos.</p>
         <button id="btnToggleSystem" class="btn-success" onclick="toggleSystem()">Estado Actual: DESCONOCIDO</button>
     </div>
 </div>
@@ -251,7 +266,6 @@
 </div>
 
 <script>
-    // Base de datos de estudiantes pre-cargada
     const dbEstudiantes = {
         "31244041": { nombre: "MARLYNG YANEIDY JAIMES BLANCO", pnf: "MEDICINA", seccion: "SECCION A" },
         "34243927": { nombre: "JOSE DAVID CONTRERAS CONTRERAS", pnf: "MEDICINA", seccion: "SECCION A" },
@@ -262,13 +276,12 @@
         "24611897": { nombre: "JOEL ALEXANDER CASTRO CONTRERAS", pnf: "MEDICINA", seccion: "SECCION C" },
         "20369899": { nombre: "MARIA ISABEL PEREZ LABRADOR", pnf: "ENFERMERIA", seccion: "SECCION D" },
         "32581983": { nombre: "MANUEL ANTONIO MORA ARELLANO", pnf: "MEDICINA", seccion: "SECCION D" }
-        // Agrega el resto de la lista de Word aquí siguiendo este formato
+        // Puedes agregar aquí el resto de la lista de cédulas.
     };
 
     let currentUser = null;
     let accionPendiente = null;
 
-    // Inicializar estado del sistema en LocalStorage
     if(localStorage.getItem('sistemaActivo') === null) {
         localStorage.setItem('sistemaActivo', 'false');
     }
@@ -276,37 +289,29 @@
     function showSection(sectionId) {
         document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
         document.getElementById(sectionId).classList.remove('hidden');
-        
-        if(sectionId === 'student-panel') {
-            verificarEstadoSistema();
-        }
+        if(sectionId === 'student-panel') verificarEstadoSistema();
     }
 
     function verificarEstadoSistema() {
         const activo = localStorage.getItem('sistemaActivo') === 'true';
         const alerta = document.getElementById('system-status-alert');
         const botones = document.querySelectorAll('.action-btn');
-        
         if(!activo) {
             alerta.style.display = 'block';
-            botones.forEach(btn => btn.disabled = true);
-            botones.forEach(btn => btn.style.backgroundColor = '#ccc');
+            botones.forEach(btn => { btn.disabled = true; btn.style.backgroundColor = '#ccc'; });
         } else {
             alerta.style.display = 'none';
-            botones.forEach(btn => btn.disabled = false);
-            botones.forEach(btn => btn.style.backgroundColor = '#2ecc71');
+            botones.forEach(btn => { btn.disabled = false; btn.style.backgroundColor = '#2ecc71'; });
         }
     }
 
-    // Registro Paso 1 a 2
     function goToRegisterStep2() {
         const correo = document.getElementById('regEmail').value;
         const clave = document.getElementById('regPassword').value;
-        if(!correo || !clave) { alert("Llene correo y clave"); return; }
+        if(!correo || !clave) { alert("Debe ingresar un correo y crear una contraseña"); return; }
         showSection('register-step2');
     }
 
-    // Auto-llenado de cédula
     function buscarCedulaRegistro() {
         const ced = document.getElementById('regCedula').value;
         const nombreInput = document.getElementById('regNombre');
@@ -318,17 +323,11 @@
             nombreInput.value = dbEstudiantes[ced].nombre;
             pnfInput.value = dbEstudiantes[ced].pnf;
             seccionInput.value = dbEstudiantes[ced].seccion;
-            nombreInput.readOnly = true;
-            pnfInput.readOnly = true;
-            seccionInput.readOnly = true;
+            nombreInput.readOnly = true; pnfInput.readOnly = true; seccionInput.readOnly = true;
             aviso.style.display = "none";
         } else {
-            nombreInput.value = "";
-            pnfInput.value = "";
-            seccionInput.value = "";
-            nombreInput.readOnly = false;
-            pnfInput.readOnly = false;
-            seccionInput.readOnly = false;
+            nombreInput.value = ""; pnfInput.value = ""; seccionInput.value = "";
+            nombreInput.readOnly = false; pnfInput.readOnly = false; seccionInput.readOnly = false;
             aviso.style.display = "block";
         }
     }
@@ -341,14 +340,14 @@
         const pnf = document.getElementById('regPnf').value.toUpperCase();
         const sec = document.getElementById('regSeccion').value.toUpperCase();
 
-        if(!ced || !nom || !sec) { alert("Faltan datos personales."); return; }
+        if(!ced || !nom || !sec) { alert("Por favor complete los datos personales."); return; }
 
         let usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
-        if(usuarios[email]) { alert("Este correo ya está registrado."); return; }
+        if(usuarios[email]) { alert("Este correo ya se encuentra registrado."); return; }
 
         usuarios[email] = { clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf };
         localStorage.setItem('usuariosUCS', JSON.stringify(usuarios));
-        alert("Registro exitoso. Ya puede iniciar sesión.");
+        alert("¡Registro exitoso! Ya puede iniciar sesión.");
         showSection('login-section');
     }
 
@@ -371,7 +370,7 @@
             document.getElementById('student-sec').innerText = currentUser.seccion;
             showSection('student-panel');
         } else {
-            alert("Credenciales incorrectas o no registrado.");
+            alert("El correo o la contraseña son incorrectos.");
         }
     }
 
@@ -382,12 +381,8 @@
         showSection('login-section');
     }
 
-    // Modal de confirmación
     function prepararGuardado(tipo) {
-        if(localStorage.getItem('sistemaActivo') !== 'true') {
-            alert("El sistema está desactivado por el administrador.");
-            return;
-        }
+        if(localStorage.getItem('sistemaActivo') !== 'true') return;
 
         accionPendiente = tipo;
         let msg = "";
@@ -395,14 +390,14 @@
         if (tipo === 'asistencia') {
             const fecha = document.getElementById('fechaClase').value;
             const materia = document.getElementById('materiaAsistencia').value;
-            if(!fecha) { alert("Seleccione una fecha"); return; }
-            msg = `¿Seguro que desea guardar asistencia de ${materia} para el día ${fecha}? No podrá modificarla.`;
+            if(!fecha) { alert("Debe seleccionar la fecha de la clase"); return; }
+            msg = `¿Guardar asistencia de ${materia} para el día ${fecha}? No podrá deshacerlo.`;
         } else {
             const materia = document.getElementById('materiaNota').value;
             const eval = document.getElementById('numEvaluacion').value;
             const nota = document.getElementById('valorNota').value;
-            if(!nota || nota < 1 || nota > 20) { alert("Nota inválida"); return; }
-            msg = `¿Seguro que desea guardar ${nota} pts en la ${eval} de ${materia}?`;
+            if(!nota || nota < 1 || nota > 20) { alert("Nota inválida (debe ser del 1 al 20)"); return; }
+            msg = `¿Guardar calificación de ${nota} pts en la ${eval} de ${materia}?`;
         }
 
         document.getElementById('modalMsg').innerText = msg;
@@ -425,12 +420,9 @@
         const materia = document.getElementById('materiaAsistencia').value;
         let asistencias = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
         
-        asistencias.push({
-            fecha: fecha, cedula: currentUser.cedula, nombre: currentUser.nombre, 
-            seccion: currentUser.seccion, materia: materia
-        });
+        asistencias.push({ fecha: fecha, cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia });
         localStorage.setItem('asistenciasUCS', JSON.stringify(asistencias));
-        alert("Asistencia Guardada");
+        alert("¡Asistencia registrada correctamente!");
         showSection('student-panel');
     }
 
@@ -439,19 +431,14 @@
         const eval = document.getElementById('numEvaluacion').value;
         const nota = parseInt(document.getElementById('valorNota').value);
         let notas = JSON.parse(localStorage.getItem('notasUCS')) || [];
-        
         let estatus = nota < 11 ? "Reprobado" : "Aprobado";
 
-        notas.push({
-            cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion,
-            materia: materia, evaluacion: eval, valor: nota, estatus: estatus
-        });
+        notas.push({ cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion, materia: materia, evaluacion: eval, valor: nota, estatus: estatus });
         localStorage.setItem('notasUCS', JSON.stringify(notas));
-        alert("Nota Guardada");
+        alert("¡Nota guardada correctamente!");
         showSection('student-panel');
     }
 
-    // Funciones Admin
     function verAdminSeccion(id) {
         document.querySelectorAll('.admin-vista').forEach(el => el.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
@@ -467,68 +454,7 @@
         const btn = document.getElementById('btnToggleSystem');
         const activo = localStorage.getItem('sistemaActivo') === 'true';
         if(activo) {
-            btn.innerText = "Sistema HABILITADO (Clic para Bloquear)";
+            btn.innerText = "Sistema HABILITADO (Bloquear)";
             btn.className = "btn-danger";
         } else {
-            btn.innerText = "Sistema BLOQUEADO (Clic para Habilitar)";
-            btn.className = "btn-success";
-        }
-    }
-
-    function actualizarTablasAdmin() {
-        const secFiltro = document.getElementById('filtroSeccion').value;
-        const matFiltro = document.getElementById('filtroMateria').value;
-
-        // Asistencias
-        const asist = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
-        let htmlA = '';
-        asist.forEach(a => {
-            if((secFiltro === "Todas" || a.seccion === secFiltro) && (matFiltro === "Todas" || a.materia === matFiltro)){
-                htmlA += `<tr><td>${a.fecha}</td><td>${a.cedula}</td><td>${a.nombre}</td><td>${a.seccion}</td><td>${a.materia}</td></tr>`;
-            }
-        });
-        document.getElementById('bodyAsistencias').innerHTML = htmlA;
-
-        // Notas
-        const not = JSON.parse(localStorage.getItem('notasUCS')) || [];
-        let htmlN = '';
-        not.forEach(n => {
-            if((secFiltro === "Todas" || n.seccion === secFiltro) && (matFiltro === "Todas" || n.materia === matFiltro)){
-                let color = n.valor < 11 ? 'color: red;' : 'color: green;';
-                htmlN += `<tr><td>${n.cedula}</td><td>${n.nombre}</td><td>${n.seccion}</td><td>${n.materia}</td><td>${n.evaluacion}</td><td style="${color}">${n.valor}</td><td style="${color}">${n.estatus}</td></tr>`;
-            }
-        });
-        document.getElementById('bodyNotas').innerHTML = htmlN;
-
-        // Credenciales
-        const usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
-        let htmlC = '';
-        for (let email in usuarios) {
-            let u = usuarios[email];
-            if(secFiltro === "Todas" || u.seccion === secFiltro) {
-                htmlC += `<tr><td>${u.cedula}</td><td>${u.nombre}</td><td>${u.seccion}</td><td>${email}</td><td>${u.clave}</td></tr>`;
-            }
-        }
-        document.getElementById('bodyCredenciales').innerHTML = htmlC;
-    }
-
-    function exportarWord(tableID, filename = ''){
-        var downloadLink;
-        var dataType = 'application/vnd.ms-word';
-        var tableSelect = document.getElementById(tableID);
-        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
-        filename = filename?filename+'.doc':'documento.doc';
-        downloadLink = document.createElement("a");
-        document.body.appendChild(downloadLink);
-        if(navigator.msSaveOrOpenBlob){
-            var blob = new Blob(['ufeff', tableHTML], { type: dataType });
-            navigator.msSaveOrOpenBlob( blob, filename);
-        }else{
-            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
-            downloadLink.download = filename;
-            downloadLink.click();
-        }
-    }
-</script>
-</body>
-</html>
+            btn.innerText = "Sistema BLOQUEADO (Habilit
