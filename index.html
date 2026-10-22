@@ -3,1014 +3,532 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCS Hugo Chávez Frias - Gestión Académica</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Sistema UCS - Asistencia y Notas</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .hidden { display: none !important; }
-        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
-        .modal { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        h1, h2, h3 { color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        button:hover { background-color: #2980b9; }
+        .btn-danger { background-color: #e74c3c; }
+        .btn-danger:hover { background-color: #c0392b; }
+        .btn-success { background-color: #2ecc71; }
+        .btn-secondary { background-color: #7f8c8d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #2c3e50; color: white; }
+        .hidden { display: none; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .nav-buttons button { flex: 1; min-width: 120px; margin-top: 0; }
+        .alert { padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; margin-bottom: 15px; display: none; text-align: center; font-weight: bold; }
+        
+        /* Modal de confirmación */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 20% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px; text-align: center; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body>
 
-    <!-- Navbar -->
-    <nav class="bg-blue-800 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-user-md text-2xl"></i>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">UCS Hugo Chávez Frias</h1>
-                    <p class="text-xs text-blue-200">PNF Medicina, Enfermería y Odontología - Jáuregui</p>
-                </div>
-            </div>
-            <div id="nav-user" class="hidden flex items-center space-x-4">
-                <span id="nav-user-name" class="text-sm font-medium"></span>
-                <button onclick="app.logout()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition"><i class="fas fa-sign-out-alt mr-1"></i> Salir</button>
-            </div>
+<div class="container" id="login-section">
+    <h1>UCS - Curso Introductorio</h1>
+    <p style="text-align: center;">PNF Medicina, Enfermería y Odontología</p>
+    <h2>Iniciar Sesión</h2>
+    <div class="form-group">
+        <label>Correo Electrónico:</label>
+        <input type="email" id="loginEmail" placeholder="Ingrese su correo">
+    </div>
+    <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" id="loginPassword" placeholder="Ingrese su contraseña">
+    </div>
+    <button onclick="login()">Ingresar</button>
+    <button class="btn-secondary" onclick="showSection('register-step1')">Registrarse como Estudiante</button>
+</div>
+
+<!-- Registro Paso 1: Correo y Clave -->
+<div class="container hidden" id="register-step1">
+    <h2>Registro - Paso 1 (Credenciales)</h2>
+    <div class="form-group">
+        <label>Correo Electrónico:</label>
+        <input type="email" id="regEmail" placeholder="Su correo personal">
+    </div>
+    <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" id="regPassword" placeholder="Cree una contraseña">
+    </div>
+    <button class="btn-success" onclick="goToRegisterStep2()">Siguiente Paso</button>
+    <button class="btn-secondary" onclick="showSection('login-section')">Regresar</button>
+</div>
+
+<!-- Registro Paso 2: Cédula y Datos -->
+<div class="container hidden" id="register-step2">
+    <h2>Registro - Paso 2 (Datos Personales)</h2>
+    <div class="form-group">
+        <label>Cédula de Identidad:</label>
+        <input type="number" id="regCedula" placeholder="Ej: 31244041" onblur="buscarCedulaRegistro()">
+    </div>
+    <div class="form-group">
+        <label>Nombres y Apellidos:</label>
+        <input type="text" id="regNombre" readonly>
+    </div>
+    <div class="form-group">
+        <label>PNF (Carrera):</label>
+        <input type="text" id="regPnf" readonly>
+    </div>
+    <div class="form-group">
+        <label>Sección Asignada:</label>
+        <input type="text" id="regSeccion" readonly>
+    </div>
+    <p id="regAviso" style="color: red; font-size: 12px; display: none;">Cédula no encontrada en la base de datos. Se han desbloqueado los campos para llenado manual.</p>
+    <button class="btn-success" onclick="completarRegistro()">Completar Registro</button>
+    <button class="btn-secondary" onclick="showSection('register-step1')">Regresar</button>
+</div>
+
+<!-- Panel de Estudiante -->
+<div class="container hidden" id="student-panel">
+    <div class="nav-buttons">
+        <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+    </div>
+    <h2>Panel de Estudiante</h2>
+    <p>Bienvenido, <span id="student-name"></span> (<span id="student-sec"></span>)</p>
+    
+    <div id="system-status-alert" class="alert">EL ADMINISTRADOR AÚN NO HA HABILITADO LA CARGA DE DATOS.</div>
+
+    <div class="nav-buttons">
+        <button onclick="showSection('student-asistencia')">Cargar Asistencia</button>
+        <button onclick="showSection('student-notas')">Cargar Notas</button>
+    </div>
+</div>
+
+<!-- Estudiante: Asistencia -->
+<div class="container hidden" id="student-asistencia">
+    <button class="btn-secondary" onclick="showSection('student-panel')" style="margin-bottom: 15px;">⬅ Regresar al Menú</button>
+    <h2>Cargar Asistencia</h2>
+    <div class="form-group">
+        <label>Fecha de la Clase:</label>
+        <input type="date" id="fechaClase" min="2026-10-05" max="2026-11-23">
+    </div>
+    <div class="form-group">
+        <label>Materia:</label>
+        <select id="materiaAsistencia">
+            <option value="Matemática">Matemática</option>
+            <option value="Física">Física</option>
+        </select>
+    </div>
+    <button class="btn-success action-btn" onclick="prepararGuardado('asistencia')">Guardar Asistencia</button>
+</div>
+
+<!-- Estudiante: Notas -->
+<div class="container hidden" id="student-notas">
+    <button class="btn-secondary" onclick="showSection('student-panel')" style="margin-bottom: 15px;">⬅ Regresar al Menú</button>
+    <h2>Cargar Evaluación</h2>
+    <p>Nota: Las evaluaciones son en escala del 1 al 20. Cada una vale 25%. Reprobado < 11.</p>
+    <div class="form-group">
+        <label>Materia:</label>
+        <select id="materiaNota">
+            <option value="Matemática">Matemática</option>
+            <option value="Física">Física</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Evaluación (1 a 5):</label>
+        <select id="numEvaluacion">
+            <option value="Eval 1">Evaluación 1 (25%)</option>
+            <option value="Eval 2">Evaluación 2 (25%)</option>
+            <option value="Eval 3">Evaluación 3 (25%)</option>
+            <option value="Eval 4">Evaluación 4 (25%)</option>
+            <option value="Eval 5">Evaluación 5 (Extra/Recuperación)</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Calificación (1 al 20):</label>
+        <input type="number" id="valorNota" min="1" max="20">
+    </div>
+    <button class="btn-success action-btn" onclick="prepararGuardado('nota')">Guardar Nota</button>
+</div>
+
+<!-- Panel de Administrador -->
+<div class="container hidden" id="admin-panel">
+    <div class="nav-buttons">
+        <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+        <button onclick="verAdminSeccion('admin-asistencias')">Ver Asistencias</button>
+        <button onclick="verAdminSeccion('admin-notas')">Ver Notas</button>
+        <button class="btn-secondary" onclick="verAdminSeccion('admin-credenciales')">Credenciales Estudiantes</button>
+        <button class="btn-secondary" onclick="verAdminSeccion('admin-config')">Configuración</button>
+    </div>
+    <h2>Panel de Administración</h2>
+    
+    <!-- Filtros generales -->
+    <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <select id="filtroSeccion" onchange="actualizarTablasAdmin()">
+            <option value="Todas">Todas las Secciones</option>
+            <option value="SECCION A">Sección A</option>
+            <option value="SECCION B">Sección B</option>
+            <option value="SECCION C">Sección C</option>
+            <option value="SECCION D">Sección D</option>
+        </select>
+        <select id="filtroMateria" onchange="actualizarTablasAdmin()">
+            <option value="Todas">Ambas Materias</option>
+            <option value="Matemática">Matemática</option>
+            <option value="Física">Física</option>
+        </select>
+    </div>
+
+    <!-- Vistas del admin -->
+    <div id="admin-asistencias" class="admin-vista">
+        <h3>Registro de Asistencias</h3>
+        <button class="btn-success" onclick="exportarWord('tablaAsistencias', 'Asistencias_UCS')">Descargar Word (Asistencias)</button>
+        <table id="tablaAsistencias">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Sección</th>
+                    <th>Materia</th>
+                </tr>
+            </thead>
+            <tbody id="bodyAsistencias"></tbody>
+        </table>
+    </div>
+
+    <div id="admin-notas" class="admin-vista hidden">
+        <h3>Registro de Notas</h3>
+        <button class="btn-success" onclick="exportarWord('tablaNotas', 'Notas_UCS')">Descargar Word (Notas)</button>
+        <table id="tablaNotas">
+            <thead>
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Sección</th>
+                    <th>Materia</th>
+                    <th>Evaluación</th>
+                    <th>Nota (1-20)</th>
+                    <th>Estatus</th>
+                </tr>
+            </thead>
+            <tbody id="bodyNotas"></tbody>
+        </table>
+    </div>
+
+    <div id="admin-credenciales" class="admin-vista hidden">
+        <h3>Credenciales Registradas (Uso exclusivo Admin)</h3>
+        <table id="tablaCredenciales">
+            <thead>
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Sección</th>
+                    <th>Correo</th>
+                    <th>Contraseña</th>
+                </tr>
+            </thead>
+            <tbody id="bodyCredenciales"></tbody>
+        </table>
+    </div>
+
+    <div id="admin-config" class="admin-vista hidden">
+        <h3>Configuración del Sistema</h3>
+        <p>Controla si los estudiantes pueden guardar datos en este momento.</p>
+        <button id="btnToggleSystem" class="btn-success" onclick="toggleSystem()">Estado Actual: DESCONOCIDO</button>
+    </div>
+</div>
+
+<!-- Modal Confirmación -->
+<div id="modalConfirmacion" class="modal">
+    <div class="modal-content">
+        <h3>¿Está seguro?</h3>
+        <p id="modalMsg"></p>
+        <div class="modal-buttons">
+            <button class="btn-success" onclick="confirmarAccion()">Sí, Confirmar</button>
+            <button class="btn-danger" onclick="cerrarModal()">Cancelar</button>
         </div>
-    </nav>
+    </div>
+</div>
 
-    <!-- Main Container -->
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl relative">
+<script>
+    // Base de datos de estudiantes pre-cargada
+    const dbEstudiantes = {
+        "31244041": { nombre: "MARLYNG YANEIDY JAIMES BLANCO", pnf: "MEDICINA", seccion: "SECCION A" },
+        "34243927": { nombre: "JOSE DAVID CONTRERAS CONTRERAS", pnf: "MEDICINA", seccion: "SECCION A" },
+        "26015341": { nombre: "SANDRA YOSBENY VERA OCHOA", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "13763023": { nombre: "JANETH DEL CARMEN SANCHEZ SALAS", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "33975828": { nombre: "GENESIS GABRIELA ROJAS ROA", pnf: "MEDICINA", seccion: "SECCION B" },
+        "26534229": { nombre: "JEIDY ESTEFANIA SANDIA PEREZ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "24611897": { nombre: "JOEL ALEXANDER CASTRO CONTRERAS", pnf: "MEDICINA", seccion: "SECCION C" },
+        "20369899": { nombre: "MARIA ISABEL PEREZ LABRADOR", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "32581983": { nombre: "MANUEL ANTONIO MORA ARELLANO", pnf: "MEDICINA", seccion: "SECCION D" }
+        // Agrega el resto de la lista de Word aquí siguiendo este formato
+    };
+
+    let currentUser = null;
+    let accionPendiente = null;
+
+    // Inicializar estado del sistema en LocalStorage
+    if(localStorage.getItem('sistemaActivo') === null) {
+        localStorage.setItem('sistemaActivo', 'false');
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+        document.getElementById(sectionId).classList.remove('hidden');
         
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="absolute inset-0 bg-gray-50 bg-opacity-90 z-50 flex flex-col items-center justify-center hidden">
-            <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
-            <p class="text-gray-600 font-medium">Cargando datos...</p>
-        </div>
-
-        <!-- Custom Alert Modal -->
-        <div id="alert-modal" class="fixed inset-0 modal z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full fade-in">
-                <h3 id="alert-title" class="text-lg font-bold mb-2">Mensaje</h3>
-                <p id="alert-message" class="text-gray-600 mb-6"></p>
-                <div class="flex justify-end">
-                    <button onclick="document.getElementById('alert-modal').classList.add('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Entendido</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom Confirm Modal -->
-        <div id="confirm-modal" class="fixed inset-0 modal z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full fade-in">
-                <h3 id="confirm-title" class="text-lg font-bold mb-2">Confirmación</h3>
-                <p id="confirm-message" class="text-gray-600 mb-6"></p>
-                <div class="flex justify-end space-x-3">
-                    <button id="confirm-btn-no" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">Cancelar</button>
-                    <button id="confirm-btn-yes" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Sí, estoy seguro</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- View: Login -->
-        <div id="view-login" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md fade-in">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h2>
-            <form id="form-login" onsubmit="app.handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                    <input type="email" id="login-email" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="tucorreo@ejemplo.com o admin@...">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                    <input type="password" id="login-password" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition">Entrar</button>
-            </form>
-            <p class="mt-4 text-center text-sm text-gray-600">
-                ¿Estudiante nuevo? <a href="#" onclick="app.switchView('register')" class="text-blue-600 font-bold hover:underline">Regístrate aquí</a>
-            </p>
-        </div>
-
-        <!-- View: Register Step 1 -->
-        <div id="view-register" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md hidden fade-in">
-            <div class="flex items-center mb-6">
-                <button onclick="app.switchView('login')" class="text-gray-500 hover:text-blue-600 mr-3 transition"><i class="fas fa-arrow-left text-xl"></i></button>
-                <h2 class="text-2xl font-bold text-gray-800">Registro (Paso 1/2)</h2>
-            </div>
-            <form id="form-register-1" onsubmit="app.goToRegisterStep2(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                    <input type="email" id="reg-email" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="tucorreo@ejemplo.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                    <input type="password" id="reg-password" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition">Siguiente paso <i class="fas fa-arrow-right ml-2"></i></button>
-            </form>
-            <p class="mt-4 text-center text-sm text-gray-600">
-                ¿Ya tienes cuenta? <a href="#" onclick="app.switchView('login')" class="text-blue-600 font-bold hover:underline">Inicia Sesión</a>
-            </p>
-        </div>
-
-        <!-- View: Register Step 2 -->
-        <div id="view-register-step2" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md hidden fade-in">
-            <div class="flex items-center mb-6">
-                <button onclick="app.switchView('register')" class="text-gray-500 hover:text-blue-600 mr-3 transition"><i class="fas fa-arrow-left text-xl"></i></button>
-                <h2 class="text-2xl font-bold text-gray-800">Identidad (Paso 2/2)</h2>
-            </div>
-            <form id="form-register-2" onsubmit="app.handleRegister(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="reg-cedula" required class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ej. 31244041">
-                        <button type="button" onclick="app.fetchStudentData()" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md text-sm font-medium"><i class="fas fa-search"></i> Buscar</button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Ingresa tu cédula y presiona buscar para extraer tus datos.</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                    <input type="text" id="reg-nombre" required readonly class="w-full px-4 py-2 border rounded-md bg-gray-50 text-gray-600 outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sección</label>
-                    <select id="reg-seccion" required disabled class="w-full px-4 py-2 border rounded-md bg-gray-50 text-gray-600 outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                        <option value="">Seleccione su sección...</option>
-                        <option value="A">Sección A</option>
-                        <option value="B">Sección B</option>
-                        <option value="C">Sección C</option>
-                        <option value="D">Sección D</option>
-                    </select>
-                </div>
-                <button type="submit" id="btn-register" disabled class="w-full bg-gray-400 text-white font-bold py-2 px-4 rounded-md cursor-not-allowed transition"><i class="fas fa-check-circle mr-2"></i>Completar Registro</button>
-            </form>
-        </div>
-
-        <!-- View: Admin Dashboard -->
-        <div id="view-admin" class="hidden fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col md:flex-row justify-between items-center overflow-x-auto">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Panel de Administración</h2>
-                    <p class="text-gray-600">Gestión de cursos, reportes y configuración.</p>
-                </div>
-                <div class="mt-4 md:mt-0 flex items-center space-x-3 bg-blue-50 px-4 py-2 rounded-lg border border-blue-100">
-                    <span class="text-sm font-medium text-blue-800">Carga de notas por estudiantes:</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="admin-toggle-grades" onchange="app.toggleGradeEntry(event)" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                    <span id="admin-toggle-status" class="text-sm font-bold text-gray-500">Inactivo</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Data Base Manager -->
-                <div class="bg-white rounded-xl shadow p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-database text-blue-600 mr-2"></i>Base de Datos de Estudiantes</h3>
-                    <p class="text-sm text-gray-600 mb-4">Pega aquí la lista de estudiantes permitidos para registrarse. Formato: <code>Cédula, Nombre Completo, Sección</code> (una por línea). Secciones válidas: A, B, C, D.</p>
-                    <textarea id="admin-db-input" class="w-full h-40 p-3 border rounded-md text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none mb-3" placeholder="31244041, MARLYNG YANEIDY JAIMES BLANCO, A&#10;13763023, JANETH DEL CARMEN SANCHEZ SALAS, B"></textarea>
-                    <button onclick="app.saveReferenceDB()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded transition w-full"><i class="fas fa-save mr-2"></i>Actualizar Base de Datos</button>
-                </div>
-
-                <!-- Export Reports -->
-                <div class="bg-white rounded-xl shadow p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-file-word text-blue-600 mr-2"></i>Exportar Reportes (Word)</h3>
-                    <div class="space-y-4">
-                        <div class="p-4 border rounded-lg hover:bg-gray-50 transition">
-                            <h4 class="font-bold text-gray-700 mb-1">Reporte de Asistencia</h4>
-                            <p class="text-sm text-gray-500 mb-3">Descarga la sábana de asistencia de todos los estudiantes por sección.</p>
-                            <button onclick="app.exportAttendanceToWord()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm w-full"><i class="fas fa-download mr-2"></i>Descargar Asistencia</button>
-                        </div>
-                        <div class="p-4 border rounded-lg hover:bg-gray-50 transition">
-                            <h4 class="font-bold text-gray-700 mb-1">Reporte de Notas Finales</h4>
-                            <p class="text-sm text-gray-500 mb-3">Descarga las calificaciones, acumulados y estado final (Aprobado/Reprobado).</p>
-                            <button onclick="app.exportGradesToWord()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm w-full"><i class="fas fa-download mr-2"></i>Descargar Notas</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin: Registered Students List -->
-            <div class="bg-white rounded-xl shadow p-6 mt-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users text-blue-600 mr-2"></i>Estudiantes Registrados</h3>
-                <div class="overflow-x-auto w-full">
-                    <table class="min-w-full bg-white border rounded-lg text-sm whitespace-nowrap">
-                        <thead class="bg-gray-100 text-gray-600">
-                            <tr>
-                                <th class="py-2 px-4 text-left border-b">Cédula</th>
-                                <th class="py-2 px-4 text-left border-b">Nombre Completo</th>
-                                <th class="py-2 px-4 text-center border-b">Sección</th>
-                                <th class="py-2 px-4 text-left border-b">Correo Registrado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-students-list" class="divide-y">
-                            <!-- Injected via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- View: Student Dashboard Menu -->
-        <div id="view-student" class="hidden fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow p-6">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-6">
-                    <div class="mb-4 md:mb-0">
-                        <h2 class="text-2xl font-bold text-gray-800" id="student-welcome-name">Bienvenido</h2>
-                        <p class="text-gray-600">Sección: <span id="student-welcome-section" class="font-medium text-blue-600"></span></p>
-                    </div>
-                    <div id="student-alerts-container" class="w-full md:w-auto">
-                        <!-- Alerts for missing attendance injected here -->
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button onclick="app.switchView('student-attendance')" class="flex flex-col items-center justify-center p-8 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition shadow-sm w-full">
-                        <i class="fas fa-calendar-check text-5xl text-blue-600 mb-4"></i>
-                        <span class="text-xl font-bold text-blue-800">Gestionar Asistencia</span>
-                    </button>
-                    <button onclick="app.switchView('student-grades')" class="flex flex-col items-center justify-center p-8 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition shadow-sm w-full">
-                        <i class="fas fa-award text-5xl text-indigo-600 mb-4"></i>
-                        <span class="text-xl font-bold text-indigo-800">Mis Calificaciones</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- View: Student Attendance -->
-        <div id="view-student-attendance" class="hidden fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow p-6">
-                <div class="flex items-center mb-6 border-b pb-4 overflow-x-auto">
-                    <button onclick="app.switchView('student')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mr-4 transition flex-shrink-0"><i class="fas fa-arrow-left mr-2"></i> Regresar</button>
-                    <h2 class="text-2xl font-bold text-gray-800 whitespace-nowrap">Registro de Asistencia</h2>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-100 rounded-lg p-6 max-w-2xl mx-auto">
-                    <h3 class="font-bold text-lg text-blue-800 mb-4">Marcar Asistencia</h3>
-                    <form onsubmit="app.markAttendance(event)" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
-                                <select id="att-subject" required class="w-full px-4 py-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                    <option value="">Seleccione materia...</option>
-                                    <option value="Matematicas">Matemáticas</option>
-                                    <option value="Fisica">Física</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Clase</label>
-                                <select id="att-date" required class="w-full px-4 py-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                    <option value="">Seleccione fecha...</option>
-                                    <option value="2026-10-05">Lunes, 05 de Octubre</option>
-                                    <option value="2026-10-12">Lunes, 12 de Octubre</option>
-                                    <option value="2026-10-19">Lunes, 19 de Octubre</option>
-                                    <option value="2026-10-26">Lunes, 26 de Octubre</option>
-                                    <option value="2026-11-02">Lunes, 02 de Noviembre</option>
-                                    <option value="2026-11-09">Lunes, 09 de Noviembre</option>
-                                    <option value="2026-11-16">Lunes, 16 de Noviembre</option>
-                                    <option value="2026-11-23">Lunes, 23 de Noviembre</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition mt-4"><i class="fas fa-check-circle mr-2"></i>Registrar mi asistencia hoy</button>
-                    </form>
-                </div>
-
-                <!-- Attendance History -->
-                <div class="mt-8">
-                    <h4 class="font-bold text-gray-700 mb-3">Mi Historial de Asistencia</h4>
-                    <div class="overflow-x-auto w-full">
-                        <table class="min-w-full bg-white border rounded-lg text-sm whitespace-nowrap">
-                            <thead class="bg-gray-100 text-gray-600">
-                                <tr>
-                                    <th class="py-2 px-4 text-left border-b">Fecha</th>
-                                    <th class="py-2 px-4 text-left border-b">Materia</th>
-                                    <th class="py-2 px-4 text-center border-b">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="student-attendance-list" class="divide-y">
-                                <!-- Injected via JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- View: Student Grades -->
-        <div id="view-student-grades" class="hidden fade-in space-y-6">
-            <div class="bg-white rounded-xl shadow p-6">
-                <div class="flex items-center mb-6 border-b pb-4 overflow-x-auto">
-                    <button onclick="app.switchView('student')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mr-4 transition flex-shrink-0"><i class="fas fa-arrow-left mr-2"></i> Regresar</button>
-                    <h2 class="text-2xl font-bold text-gray-800 whitespace-nowrap">Mis Calificaciones</h2>
-                </div>
-
-                <div id="grades-lock-message" class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg mb-6 flex items-start hidden">
-                    <i class="fas fa-lock mt-1 mr-3 text-lg"></i>
-                    <div>
-                        <p class="font-bold">Carga de Notas Deshabilitada</p>
-                        <p class="text-sm">El administrador aún no ha habilitado la opción para cargar o modificar calificaciones. Solo puedes visualizar.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Math Grades -->
-                    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
-                        <div class="bg-indigo-600 text-white px-4 py-3 font-bold text-lg flex justify-between items-center">
-                            <span><i class="fas fa-calculator mr-2"></i>Matemáticas</span>
-                            <span id="math-status" class="text-xs px-2 py-1 bg-white bg-opacity-20 rounded"></span>
-                        </div>
-                        <div class="p-4 space-y-3 overflow-x-auto">
-                            <form id="form-grades-math" onsubmit="app.saveGrades(event, 'Matematicas')" class="min-w-[250px]">
-                                <p class="text-xs text-gray-500 mb-3 whitespace-normal">Escala del 1 al 20. Cada evaluación representa el 20%.</p>
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 1</label><input type="number" min="1" max="20" id="math-eval-1" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 2</label><input type="number" min="1" max="20" id="math-eval-2" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 3</label><input type="number" min="1" max="20" id="math-eval-3" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 4</label><input type="number" min="1" max="20" id="math-eval-4" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 5</label><input type="number" min="1" max="20" id="math-eval-5" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                </div>
-                                <div class="mt-4 pt-3 border-t flex justify-between items-center">
-                                    <span class="font-bold text-gray-700">Nota Final:</span>
-                                    <span id="math-final" class="font-bold text-xl">--</span>
-                                </div>
-                                <button type="submit" class="grade-submit-btn w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded mt-4 transition text-sm font-medium">Guardar Notas de Matemáticas</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Physics Grades -->
-                    <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
-                        <div class="bg-teal-600 text-white px-4 py-3 font-bold text-lg flex justify-between items-center">
-                            <span><i class="fas fa-atom mr-2"></i>Física</span>
-                            <span id="physics-status" class="text-xs px-2 py-1 bg-white bg-opacity-20 rounded"></span>
-                        </div>
-                        <div class="p-4 space-y-3 overflow-x-auto">
-                            <form id="form-grades-physics" onsubmit="app.saveGrades(event, 'Fisica')" class="min-w-[250px]">
-                                <p class="text-xs text-gray-500 mb-3 whitespace-normal">Escala del 1 al 20. Cada evaluación representa el 20%.</p>
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 1</label><input type="number" min="1" max="20" id="phys-eval-1" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 2</label><input type="number" min="1" max="20" id="phys-eval-2" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 3</label><input type="number" min="1" max="20" id="phys-eval-3" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 4</label><input type="number" min="1" max="20" id="phys-eval-4" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                    <div class="flex items-center justify-between"><label class="text-sm">Evaluación 5</label><input type="number" min="1" max="20" id="phys-eval-5" class="grade-input w-24 p-1 border rounded text-center"></div>
-                                </div>
-                                <div class="mt-4 pt-3 border-t flex justify-between items-center">
-                                    <span class="font-bold text-gray-700">Nota Final:</span>
-                                    <span id="phys-final" class="font-bold text-xl">--</span>
-                                </div>
-                                <button type="submit" class="grade-submit-btn w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded mt-4 transition text-sm font-medium">Guardar Notas de Física</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ucs-app-123';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            // Configuración por defecto para entorno local / prueba
-        };
-
-        let appInstance;
-        let db;
-        let auth;
-
-        // Valid class dates
-        const classDates = [
-            '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', 
-            '2026-11-02', '2026-11-09', '2026-11-16', '2026-11-23'
-        ];
-
-        class MainApp {
-            constructor() {
-                this.currentUser = null;
-                this.users = [];
-                this.attendance = [];
-                this.grades = [];
-                this.settings = { allowGrades: false };
-                this.referenceDB = [];
-                this.unsubscribes = [];
-                this.tempRegData = {};
-            }
-
-            async init() {
-                this.showLoading(true);
-                try {
-                    const fbApp = initializeApp(firebaseConfig);
-                    db = getFirestore(fbApp);
-                    auth = getAuth(fbApp);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    this.setupListeners();
-                    
-                    const savedUser = sessionStorage.getItem('ucs_current_user');
-                    if (savedUser) {
-                        this.currentUser = JSON.parse(savedUser);
-                        this.routeUser();
-                    } else {
-                        this.switchView('login');
-                    }
-                } catch (err) {
-                    console.error("Initialization Error:", err);
-                    this.showAlert("Error de conexión", "No se pudo conectar con la base de datos.");
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
-            setupListeners() {
-                const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
-                this.unsubscribes.push(onSnapshot(settingsRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        this.settings = docSnap.data();
-                        this.updateSettingsUI();
-                    }
-                }, (err) => console.error(err)));
-
-                const refDbRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'reference_db');
-                this.unsubscribes.push(onSnapshot(refDbRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        this.referenceDB = docSnap.data().data || [];
-                        const adminInput = document.getElementById('admin-db-input');
-                        if (adminInput && this.referenceDB.length > 0) {
-                            adminInput.value = this.referenceDB.map(s => `${s.cedula}, ${s.nombre}, ${s.seccion}`).join('\n');
-                        }
-                    }
-                }, (err) => console.error(err)));
-
-                const usersColl = collection(db, 'artifacts', appId, 'public', 'data', 'app_users');
-                this.unsubscribes.push(onSnapshot(usersColl, (snapshot) => {
-                    this.users = [];
-                    snapshot.forEach(doc => this.users.push({ id: doc.id, ...doc.data() }));
-                    this.renderAdminUsersTable();
-                }, (err) => console.error(err)));
-
-                const attColl = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
-                this.unsubscribes.push(onSnapshot(attColl, (snapshot) => {
-                    this.attendance = [];
-                    snapshot.forEach(doc => this.attendance.push({ id: doc.id, ...doc.data() }));
-                    if (this.currentUser && this.currentUser.role === 'student') {
-                        this.renderStudentAttendance();
-                    }
-                }, (err) => console.error(err)));
-
-                const gradesColl = collection(db, 'artifacts', appId, 'public', 'data', 'grades');
-                this.unsubscribes.push(onSnapshot(gradesColl, (snapshot) => {
-                    this.grades = [];
-                    snapshot.forEach(doc => this.grades.push({ id: doc.id, ...doc.data() }));
-                    if (this.currentUser && this.currentUser.role === 'student') {
-                        this.renderStudentGrades();
-                    }
-                }, (err) => console.error(err)));
-            }
-
-            showAlert(title, message) {
-                document.getElementById('alert-title').innerText = title;
-                document.getElementById('alert-message').innerText = message;
-                document.getElementById('alert-modal').classList.remove('hidden');
-            }
-
-            showConfirm(title, message, onConfirm) {
-                document.getElementById('confirm-title').innerText = title;
-                document.getElementById('confirm-message').innerText = message;
-                document.getElementById('confirm-modal').classList.remove('hidden');
-                
-                const btnYes = document.getElementById('confirm-btn-yes');
-                const btnNo = document.getElementById('confirm-btn-no');
-                
-                const newBtnYes = btnYes.cloneNode(true);
-                const newBtnNo = btnNo.cloneNode(true);
-                btnYes.parentNode.replaceChild(newBtnYes, btnYes);
-                btnNo.parentNode.replaceChild(newBtnNo, btnNo);
-
-                newBtnYes.addEventListener('click', () => {
-                    document.getElementById('confirm-modal').classList.add('hidden');
-                    if(onConfirm) onConfirm();
-                });
-
-                newBtnNo.addEventListener('click', () => {
-                    document.getElementById('confirm-modal').classList.add('hidden');
-                });
-            }
-
-            showLoading(show) {
-                const el = document.getElementById('loading-overlay');
-                if (show) el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            }
-
-            switchView(viewId) {
-                ['view-login', 'view-register', 'view-register-step2', 'view-admin', 'view-student', 'view-student-attendance', 'view-student-grades'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('hidden');
-                });
-                const target = document.getElementById(`view-${viewId}`);
-                if (target) target.classList.remove('hidden');
-            }
-
-            routeUser() {
-                const navUser = document.getElementById('nav-user');
-                const navUserName = document.getElementById('nav-user-name');
-                if (this.currentUser) {
-                    navUser.classList.remove('hidden');
-                    navUserName.innerText = this.currentUser.role === 'admin' ? 'Administrador' : this.currentUser.nombre;
-                    if (this.currentUser.role === 'admin') {
-                        this.switchView('admin');
-                    } else {
-                        this.switchView('student');
-                        this.initStudentDashboard();
-                    }
-                } else {
-                    navUser.classList.add('hidden');
-                    this.switchView('login');
-                }
-            }
-
-            async handleLogin(e) {
-                e.preventDefault();
-                const userLogin = document.getElementById('login-email').value.trim();
-                const pass = document.getElementById('login-password').value;
-
-                this.showLoading(true);
-                setTimeout(() => {
-                    if (userLogin === 'circuitosietejauregui@gmail.com' && pass === 'Universal11!!') {
-                        this.currentUser = { role: 'admin', email: userLogin };
-                        sessionStorage.setItem('ucs_current_user', JSON.stringify(this.currentUser));
-                        this.routeUser();
-                        this.showLoading(false);
-                        return;
-                    }
-
-                    const student = this.users.find(u => u.email === userLogin && u.password === pass);
-                    if (student) {
-                        this.currentUser = { role: 'student', ...student };
-                        sessionStorage.setItem('ucs_current_user', JSON.stringify(this.currentUser));
-                        this.routeUser();
-                    } else {
-                        this.showAlert('Error', 'Credenciales incorrectas o usuario no registrado.');
-                    }
-                    this.showLoading(false);
-                }, 500); 
-            }
-
-            logout() {
-                this.currentUser = null;
-                sessionStorage.removeItem('ucs_current_user');
-                document.getElementById('form-login').reset();
-                if(document.getElementById('form-register-1')) document.getElementById('form-register-1').reset();
-                if(document.getElementById('form-register-2')) document.getElementById('form-register-2').reset();
-                this.routeUser();
-            }
-
-            goToRegisterStep2(e) {
-                e.preventDefault();
-                this.tempRegData.email = document.getElementById('reg-email').value.trim();
-                this.tempRegData.password = document.getElementById('reg-password').value;
-                this.switchView('register-step2');
-            }
-
-            fetchStudentData() {
-                const cedula = document.getElementById('reg-cedula').value.trim();
-                if (!cedula) return this.showAlert('Aviso', 'Ingrese una cédula válida primero.');
-
-                const nombreInput = document.getElementById('reg-nombre');
-                const seccionInput = document.getElementById('reg-seccion');
-                const btnRegister = document.getElementById('btn-register');
-
-                const studentData = this.referenceDB.find(s => s.cedula === cedula);
-                if (studentData) {
-                    nombreInput.value = studentData.nombre;
-                    nombreInput.readOnly = true;
-                    nombreInput.classList.add('bg-gray-50', 'text-gray-600');
-                    
-                    const sec = studentData.seccion.trim().toUpperCase();
-                    seccionInput.value = sec;
-                    seccionInput.disabled = true;
-                    seccionInput.classList.add('bg-gray-50', 'text-gray-600');
-
-                    btnRegister.disabled = false;
-                    btnRegister.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                    btnRegister.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                    this.showAlert('Éxito', 'Estudiante encontrado en la base de datos. Puede completar el registro.');
-                } else {
-                    nombreInput.value = '';
-                    nombreInput.readOnly = false;
-                    nombreInput.classList.remove('bg-gray-50', 'text-gray-600');
-                    
-                    seccionInput.value = '';
-                    seccionInput.disabled = false;
-                    seccionInput.classList.remove('bg-gray-50', 'text-gray-600');
-
-                    btnRegister.disabled = false;
-                    btnRegister.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                    btnRegister.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                    this.showAlert('Aviso', 'Cédula no encontrada en la base de datos. Hemos desbloqueado los campos para que ingrese su Nombre y seleccione su Sección manualmente.');
-                }
-            }
-
-            async handleRegister(e) {
-                e.preventDefault();
-                const cedula = document.getElementById('reg-cedula').value.trim();
-                const nombre = document.getElementById('reg-nombre').value.trim();
-                const seccion = document.getElementById('reg-seccion').value.trim();
-                const email = this.tempRegData.email;
-                const password = this.tempRegData.password;
-
-                if (!nombre || !seccion) return this.showAlert('Error', 'Debe completar todos los campos solicitados.');
-
-                if (this.users.find(u => u.cedula === cedula || u.email === email)) {
-                    return this.showAlert('Error', 'Esta cédula o correo ya se encuentra registrado.');
-                }
-
-                this.showLoading(true);
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'app_users', cedula);
-                    await setDoc(docRef, { cedula, nombre, seccion, email, password, role: 'student' });
-                    this.showAlert('Éxito', 'Registro completado exitosamente. Ahora puede iniciar sesión.');
-                    this.switchView('login');
-                } catch (err) {
-                    console.error(err);
-                    this.showAlert('Error', 'Hubo un problema con el registro.');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
-            renderAdminUsersTable() {
-                const tbody = document.getElementById('admin-students-list');
-                if (!tbody) return;
-                
-                const students = this.users.filter(u => u.role === 'student' || !u.role);
-                
-                if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">No hay estudiantes registrados aún.</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = students.map(s => `
-                    <tr>
-                        <td class="py-2 px-4 border-b">${s.cedula}</td>
-                        <td class="py-2 px-4 border-b font-medium">${s.nombre}</td>
-                        <td class="py-2 px-4 border-b text-center">${s.seccion}</td>
-                        <td class="py-2 px-4 border-b text-gray-600">${s.email}</td>
-                    </tr>
-                `).join('');
-            }
-
-            async toggleGradeEntry(e) {
-                const isActive = e.target.checked;
-                try {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
-                    await setDoc(ref, { allowGrades: isActive }, { merge: true });
-                } catch (err) {
-                    console.error(err);
-                    this.showAlert('Error', 'No se pudo cambiar la configuración.');
-                    e.target.checked = !isActive;
-                }
-            }
-
-            updateSettingsUI() {
-                const toggle = document.getElementById('admin-toggle-grades');
-                const status = document.getElementById('admin-toggle-status');
-                if (toggle && status) {
-                    toggle.checked = !!this.settings.allowGrades;
-                    status.innerText = toggle.checked ? 'Activo' : 'Inactivo';
-                    status.className = `text-sm font-bold ${toggle.checked ? 'text-green-600' : 'text-gray-500'}`;
-                }
-
-                if (this.currentUser && this.currentUser.role === 'student') {
-                    const lockMsg = document.getElementById('grades-lock-message');
-                    const inputs = document.querySelectorAll('.grade-input');
-                    const btns = document.querySelectorAll('.grade-submit-btn');
-                    
-                    if (this.settings.allowGrades) {
-                        lockMsg.classList.add('hidden');
-                        inputs.forEach(i => { i.disabled = false; i.classList.remove('bg-gray-100'); });
-                        btns.forEach(b => { b.disabled = false; b.classList.remove('opacity-50', 'cursor-not-allowed'); });
-                    } else {
-                        lockMsg.classList.remove('hidden');
-                        inputs.forEach(i => { i.disabled = true; i.classList.add('bg-gray-100'); });
-                        btns.forEach(b => { b.disabled = true; b.classList.add('opacity-50', 'cursor-not-allowed'); });
-                    }
-                }
-            }
-
-            async saveReferenceDB() {
-                const text = document.getElementById('admin-db-input').value;
-                const lines = text.split('\n');
-                const parsed = [];
-                for(let line of lines) {
-                    if (line.trim() === '') continue;
-                    const parts = line.split(',');
-                    if (parts.length >= 3) {
-                        parsed.push({
-                            cedula: parts[0].trim(),
-                            nombre: parts[1].trim(),
-                            seccion: parts[2].trim()
-                        });
-                    }
-                }
-
-                this.showLoading(true);
-                try {
-                    const refDbRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'reference_db');
-                    await setDoc(refDbRef, { data: parsed });
-                    this.showAlert('Éxito', `Base de datos actualizada con ${parsed.length} estudiantes permitidos.`);
-                } catch(err) {
-                    console.error(err);
-                    this.showAlert('Error', 'No se pudo guardar la base de datos.');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
-            exportHTMLToWord(htmlContent, filename) {
-                const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Reporte</title><style>table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid black; padding: 5px; text-align: left; } th { background-color: #f2f2f2; }</style></head><body>`;
-                const postHtml = "</body></html>";
-                const finalHtml = preHtml + htmlContent + postHtml;
-                const blob = new Blob(['\ufeff', finalHtml], { type: 'application/msword' });
-                
-                const downloadLink = document.createElement("a");
-                document.body.appendChild(downloadLink);
-                if (navigator.msSaveOrOpenBlob) {
-                    navigator.msSaveOrOpenBlob(blob, filename);
-                } else {
-                    downloadLink.href = URL.createObjectURL(blob);
-                    downloadLink.download = filename;
-                    downloadLink.click();
-                }
-                document.body.removeChild(downloadLink);
-            }
-
-            exportAttendanceToWord() {
-                let html = `<h2>Reporte de Asistencia - UCS Jáuregui</h2>`;
-                const sections = [...new Set(this.users.map(u => u.seccion))].sort();
-
-                sections.forEach(sec => {
-                    const studentsInSection = this.users.filter(u => u.seccion === sec);
-                    html += `<h3>Sección: ${sec}</h3><table><thead><tr><th>Cédula</th><th>Nombre</th>`;
-                    classDates.forEach(d => html += `<th>${d} (M)</th><th>${d} (F)</th>`);
-                    html += `</tr></thead><tbody>`;
-
-                    studentsInSection.forEach(stu => {
-                        html += `<tr><td>${stu.cedula}</td><td>${stu.nombre}</td>`;
-                        classDates.forEach(date => {
-                            const attM = this.attendance.find(a => a.studentId === stu.cedula && a.date === date && a.subject === 'Matematicas');
-                            const attF = this.attendance.find(a => a.studentId === stu.cedula && a.date === date && a.subject === 'Fisica');
-                            html += `<td>${attM ? 'Presente' : ''}</td><td>${attF ? 'Presente' : ''}</td>`;
-                        });
-                        html += `</tr>`;
-                    });
-                    html += `</tbody></table><br/>`;
-                });
-
-                this.exportHTMLToWord(html, 'Reporte_Asistencia.doc');
-            }
-
-            exportGradesToWord() {
-                let html = `<h2>Reporte de Notas Finales - UCS Jáuregui</h2>`;
-                const sections = [...new Set(this.users.map(u => u.seccion))].sort();
-
-                sections.forEach(sec => {
-                    const studentsInSection = this.users.filter(u => u.seccion === sec);
-                    html += `<h3>Sección: ${sec}</h3><table><thead><tr><th>Cédula</th><th>Nombre</th><th>Matemáticas</th><th>Estatus (Mat)</th><th>Física</th><th>Estatus (Fis)</th></tr></thead><tbody>`;
-
-                    studentsInSection.forEach(stu => {
-                        const gradesM = this.grades.find(g => g.studentId === stu.cedula && g.subject === 'Matematicas');
-                        const gradesF = this.grades.find(g => g.studentId === stu.cedula && g.subject === 'Fisica');
-
-                        let avgM = '--', statusM = '';
-                        if (gradesM) {
-                            const sum = (gradesM.e1||0) + (gradesM.e2||0) + (gradesM.e3||0) + (gradesM.e4||0) + (gradesM.e5||0);
-                            let count = 0;
-                            [gradesM.e1, gradesM.e2, gradesM.e3, gradesM.e4, gradesM.e5].forEach(v => { if(v>0) count++; });
-                            if (count > 0) {
-                                avgM = (sum / 5).toFixed(1);
-                                statusM = avgM >= 11 ? 'Aprobado' : 'Reprobado';
-                            }
-                        }
-
-                        let avgF = '--', statusF = '';
-                        if (gradesF) {
-                            const sum = (gradesF.e1||0) + (gradesF.e2||0) + (gradesF.e3||0) + (gradesF.e4||0) + (gradesF.e5||0);
-                            let count = 0;
-                            [gradesF.e1, gradesF.e2, gradesF.e3, gradesF.e4, gradesF.e5].forEach(v => { if(v>0) count++; });
-                            if (count > 0) {
-                                avgF = (sum / 5).toFixed(1);
-                                statusF = avgF >= 11 ? 'Aprobado' : 'Reprobado';
-                            }
-                        }
-
-                        html += `<tr><td>${stu.cedula}</td><td>${stu.nombre}</td><td>${avgM}</td><td>${statusM}</td><td>${avgF}</td><td>${statusF}</td></tr>`;
-                    });
-                    html += `</tbody></table><br/>`;
-                });
-
-                this.exportHTMLToWord(html, 'Reporte_Notas.doc');
-            }
-
-            initStudentDashboard() {
-                document.getElementById('student-welcome-name').innerText = `Hola, ${this.currentUser.nombre}`;
-                document.getElementById('student-welcome-section').innerText = this.currentUser.seccion;
-                this.updateSettingsUI();
-                this.checkMissingAttendance();
-                this.renderStudentAttendance();
-                this.renderStudentGrades();
-            }
-
-            checkMissingAttendance() {
-                if (!this.currentUser) return;
-                const todayStr = new Date().toISOString().split('T')[0];
-                const pastDates = classDates.filter(d => d <= todayStr);
-                
-                let missingMath = 0;
-                let missingPhys = 0;
-
-                pastDates.forEach(d => {
-                    const hasMath = this.attendance.some(a => a.studentId === this.currentUser.cedula && a.date === d && a.subject === 'Matematicas');
-                    const hasPhys = this.attendance.some(a => a.studentId === this.currentUser.cedula && a.date === d && a.subject === 'Fisica');
-                    if (!hasMath) missingMath++;
-                    if (!hasPhys) missingPhys++;
-                });
-
-                const alertContainer = document.getElementById('student-alerts-container');
-                alertContainer.innerHTML = '';
-                if (missingMath > 0 || missingPhys > 0) {
-                    alertContainer.innerHTML = `
-                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm flex items-center">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                            Tienes asistencias pendientes por registrar.
-                        </div>
-                    `;
-                }
-            }
-
-            async markAttendance(e) {
-                e.preventDefault();
-                const subject = document.getElementById('att-subject').value;
-                const date = document.getElementById('att-date').value;
-
-                if (!subject || !date) return;
-
-                const today = new Date();
-                const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-                
-                if (date >= '2026-10-26' && date !== todayStr) {
-                    return this.showAlert('Aviso', 'Solo puedes marcar la asistencia el mismo día de la clase para las fechas a partir del 26 de Octubre.');
-                }
-
-                const exists = this.attendance.find(a => a.studentId === this.currentUser.cedula && a.date === date && a.subject === subject);
-                if (exists) {
-                    return this.showAlert('Aviso', 'Ya has registrado tu asistencia para esta materia y fecha.');
-                }
-
-                this.showConfirm('Confirmar Asistencia', `¿Estás seguro de registrar tu asistencia para ${subject === 'Matematicas' ? 'Matemáticas' : 'Física'} en la fecha ${date}?`, async () => {
-                    this.showLoading(true);
-                    try {
-                        const id = `${this.currentUser.cedula}_${date}_${subject}`;
-                        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'attendance', id);
-                        await setDoc(ref, {
-                            studentId: this.currentUser.cedula,
-                            date: date,
-                            subject: subject,
-                            timestamp: new Date().toISOString()
-                        });
-                        this.showAlert('Éxito', 'Asistencia registrada correctamente.');
-                        document.getElementById('att-subject').value = '';
-                        document.getElementById('att-date').value = '';
-                    } catch(err) {
-                        console.error(err);
-                        this.showAlert('Error', 'No se pudo registrar la asistencia.');
-                    } finally {
-                        this.showLoading(false);
-                    }
-                });
-            }
-
-            renderStudentAttendance() {
-                const tbody = document.getElementById('student-attendance-list');
-                if (!tbody) return;
-
-                const myAtt = this.attendance.filter(a => a.studentId === this.currentUser.cedula).sort((a,b) => a.date > b.date ? -1 : 1);
-                
-                if (myAtt.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">No has registrado asistencias aún.</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = myAtt.map(a => `
-                    <tr>
-                        <td class="py-2 px-4 border-b">${a.date}</td>
-                        <td class="py-2 px-4 border-b font-medium">${a.subject === 'Matematicas' ? 'Matemáticas' : 'Física'}</td>
-                        <td class="py-2 px-4 border-b text-center"><span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">Presente</span></td>
-                    </tr>
-                `).join('');
-                
-                this.checkMissingAttendance();
-            }
-
-            async saveGrades(e, subject) {
-                e.preventDefault();
-                if (!this.settings.allowGrades) return this.showAlert('Error', 'No tienes permiso para guardar notas.');
-
-                const prefix = subject === 'Matematicas' ? 'math' : 'phys';
-                const grades = {
-                    e1: parseFloat(document.getElementById(`${prefix}-eval-1`).value) || 0,
-                    e2: parseFloat(document.getElementById(`${prefix}-eval-2`).value) || 0,
-                    e3: parseFloat(document.getElementById(`${prefix}-eval-3`).value) || 0,
-                    e4: parseFloat(document.getElementById(`${prefix}-eval-4`).value) || 0,
-                    e5: parseFloat(document.getElementById(`${prefix}-eval-5`).value) || 0,
-                };
-
-                for(let i=1; i<=5; i++) {
-                    let val = grades[`e${i}`];
-                    if (val < 0 || val > 20) return this.showAlert('Error', 'Las notas deben estar entre 1 y 20.');
-                }
-
-                this.showConfirm('Confirmar Notas', `¿Estás seguro de que deseas guardar estas calificaciones para ${subject === 'Matematicas' ? 'Matemáticas' : 'Física'}?`, async () => {
-                    this.showLoading(true);
-                    try {
-                        const id = `${this.currentUser.cedula}_${subject}`;
-                        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'grades', id);
-                        await setDoc(ref, {
-                            studentId: this.currentUser.cedula,
-                            subject: subject,
-                            ...grades
-                        });
-                        this.showAlert('Éxito', `Notas de ${subject === 'Matematicas' ? 'Matemáticas' : 'Física'} guardadas correctamente.`);
-                    } catch(err) {
-                        console.error(err);
-                        this.showAlert('Error', 'No se pudieron guardar las notas.');
-                    } finally {
-                        this.showLoading(false);
-                    }
-                });
-            }
-
-            renderStudentGrades() {
-                if (!this.currentUser) return;
-                
-                ['Matematicas', 'Fisica'].forEach(sub => {
-                    const prefix = sub === 'Matematicas' ? 'math' : 'phys';
-                    const gradeRecord = this.grades.find(g => g.studentId === this.currentUser.cedula && g.subject === sub);
-                    
-                    let sum = 0;
-                    let numEntries = 0;
-
-                    if (gradeRecord) {
-                        for(let i=1; i<=5; i++) {
-                            const val = gradeRecord[`e${i}`];
-                            const input = document.getElementById(`${prefix}-eval-${i}`);
-                            if (val > 0) {
-                                input.value = val;
-                                sum += val;
-                                numEntries++;
-                            } else {
-                                input.value = '';
-                            }
-                        }
-                    }
-
-                    const finalEl = document.getElementById(`${prefix}-final`);
-                    const statusEl = document.getElementById(`${prefix}-status`);
-
-                    if (numEntries > 0) {
-                        const finalGrade = sum / 5;
-                        finalEl.innerText = finalGrade.toFixed(2);
-                        
-                        if (finalGrade < 11) {
-                            finalEl.classList.remove('text-gray-700', 'text-green-600');
-                            finalEl.classList.add('text-red-600');
-                            statusEl.innerText = 'Reprobado';
-                            statusEl.className = 'text-xs px-2 py-1 rounded bg-red-100 text-red-800 font-bold';
-                        } else {
-                            finalEl.classList.remove('text-gray-700', 'text-red-600');
-                            finalEl.classList.add('text-green-600');
-                            statusEl.innerText = 'Aprobado';
-                            statusEl.className = 'text-xs px-2 py-1 rounded bg-green-100 text-green-800 font-bold';
-                        }
-                    } else {
-                        finalEl.innerText = '--';
-                        finalEl.className = 'font-bold text-xl text-gray-700';
-                        statusEl.innerText = 'Sin Evaluar';
-                        statusEl.className = 'text-xs px-2 py-1 rounded bg-gray-100 text-gray-800';
-                    }
-                });
-            }
+        if(sectionId === 'student-panel') {
+            verificarEstadoSistema();
+        }
+    }
+
+    function verificarEstadoSistema() {
+        const activo = localStorage.getItem('sistemaActivo') === 'true';
+        const alerta = document.getElementById('system-status-alert');
+        const botones = document.querySelectorAll('.action-btn');
+        
+        if(!activo) {
+            alerta.style.display = 'block';
+            botones.forEach(btn => btn.disabled = true);
+            botones.forEach(btn => btn.style.backgroundColor = '#ccc');
+        } else {
+            alerta.style.display = 'none';
+            botones.forEach(btn => btn.disabled = false);
+            botones.forEach(btn => btn.style.backgroundColor = '#2ecc71');
+        }
+    }
+
+    // Registro Paso 1 a 2
+    function goToRegisterStep2() {
+        const correo = document.getElementById('regEmail').value;
+        const clave = document.getElementById('regPassword').value;
+        if(!correo || !clave) { alert("Llene correo y clave"); return; }
+        showSection('register-step2');
+    }
+
+    // Auto-llenado de cédula
+    function buscarCedulaRegistro() {
+        const ced = document.getElementById('regCedula').value;
+        const nombreInput = document.getElementById('regNombre');
+        const pnfInput = document.getElementById('regPnf');
+        const seccionInput = document.getElementById('regSeccion');
+        const aviso = document.getElementById('regAviso');
+
+        if (dbEstudiantes[ced]) {
+            nombreInput.value = dbEstudiantes[ced].nombre;
+            pnfInput.value = dbEstudiantes[ced].pnf;
+            seccionInput.value = dbEstudiantes[ced].seccion;
+            nombreInput.readOnly = true;
+            pnfInput.readOnly = true;
+            seccionInput.readOnly = true;
+            aviso.style.display = "none";
+        } else {
+            nombreInput.value = "";
+            pnfInput.value = "";
+            seccionInput.value = "";
+            nombreInput.readOnly = false;
+            pnfInput.readOnly = false;
+            seccionInput.readOnly = false;
+            aviso.style.display = "block";
+        }
+    }
+
+    function completarRegistro() {
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPassword').value;
+        const ced = document.getElementById('regCedula').value;
+        const nom = document.getElementById('regNombre').value.toUpperCase();
+        const pnf = document.getElementById('regPnf').value.toUpperCase();
+        const sec = document.getElementById('regSeccion').value.toUpperCase();
+
+        if(!ced || !nom || !sec) { alert("Faltan datos personales."); return; }
+
+        let usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
+        if(usuarios[email]) { alert("Este correo ya está registrado."); return; }
+
+        usuarios[email] = { clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf };
+        localStorage.setItem('usuariosUCS', JSON.stringify(usuarios));
+        alert("Registro exitoso. Ya puede iniciar sesión.");
+        showSection('login-section');
+    }
+
+    function login() {
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+
+        if (email === 'circuitosietejauregui@gmail.com' && pass === 'Universal11!!') {
+            currentUser = { rol: 'admin' };
+            showSection('admin-panel');
+            actualizarTablasAdmin();
+            actualizarBotonToggle();
+            return;
         }
 
-        // Initialize Application
-        window.app = new MainApp();
-        window.onload = () => app.init();
+        let usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
+        if (usuarios[email] && usuarios[email].clave === pass) {
+            currentUser = usuarios[email];
+            document.getElementById('student-name').innerText = currentUser.nombre;
+            document.getElementById('student-sec').innerText = currentUser.seccion;
+            showSection('student-panel');
+        } else {
+            alert("Credenciales incorrectas o no registrado.");
+        }
+    }
 
-    </script>
+    function logout() {
+        currentUser = null;
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        showSection('login-section');
+    }
+
+    // Modal de confirmación
+    function prepararGuardado(tipo) {
+        if(localStorage.getItem('sistemaActivo') !== 'true') {
+            alert("El sistema está desactivado por el administrador.");
+            return;
+        }
+
+        accionPendiente = tipo;
+        let msg = "";
+        
+        if (tipo === 'asistencia') {
+            const fecha = document.getElementById('fechaClase').value;
+            const materia = document.getElementById('materiaAsistencia').value;
+            if(!fecha) { alert("Seleccione una fecha"); return; }
+            msg = `¿Seguro que desea guardar asistencia de ${materia} para el día ${fecha}? No podrá modificarla.`;
+        } else {
+            const materia = document.getElementById('materiaNota').value;
+            const eval = document.getElementById('numEvaluacion').value;
+            const nota = document.getElementById('valorNota').value;
+            if(!nota || nota < 1 || nota > 20) { alert("Nota inválida"); return; }
+            msg = `¿Seguro que desea guardar ${nota} pts en la ${eval} de ${materia}?`;
+        }
+
+        document.getElementById('modalMsg').innerText = msg;
+        document.getElementById('modalConfirmacion').style.display = "block";
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalConfirmacion').style.display = "none";
+        accionPendiente = null;
+    }
+
+    function confirmarAccion() {
+        if (accionPendiente === 'asistencia') guardarAsistencia();
+        if (accionPendiente === 'nota') guardarNota();
+        cerrarModal();
+    }
+
+    function guardarAsistencia() {
+        const fecha = document.getElementById('fechaClase').value;
+        const materia = document.getElementById('materiaAsistencia').value;
+        let asistencias = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
+        
+        asistencias.push({
+            fecha: fecha, cedula: currentUser.cedula, nombre: currentUser.nombre, 
+            seccion: currentUser.seccion, materia: materia
+        });
+        localStorage.setItem('asistenciasUCS', JSON.stringify(asistencias));
+        alert("Asistencia Guardada");
+        showSection('student-panel');
+    }
+
+    function guardarNota() {
+        const materia = document.getElementById('materiaNota').value;
+        const eval = document.getElementById('numEvaluacion').value;
+        const nota = parseInt(document.getElementById('valorNota').value);
+        let notas = JSON.parse(localStorage.getItem('notasUCS')) || [];
+        
+        let estatus = nota < 11 ? "Reprobado" : "Aprobado";
+
+        notas.push({
+            cedula: currentUser.cedula, nombre: currentUser.nombre, seccion: currentUser.seccion,
+            materia: materia, evaluacion: eval, valor: nota, estatus: estatus
+        });
+        localStorage.setItem('notasUCS', JSON.stringify(notas));
+        alert("Nota Guardada");
+        showSection('student-panel');
+    }
+
+    // Funciones Admin
+    function verAdminSeccion(id) {
+        document.querySelectorAll('.admin-vista').forEach(el => el.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function toggleSystem() {
+        const estadoActual = localStorage.getItem('sistemaActivo') === 'true';
+        localStorage.setItem('sistemaActivo', !estadoActual);
+        actualizarBotonToggle();
+    }
+
+    function actualizarBotonToggle() {
+        const btn = document.getElementById('btnToggleSystem');
+        const activo = localStorage.getItem('sistemaActivo') === 'true';
+        if(activo) {
+            btn.innerText = "Sistema HABILITADO (Clic para Bloquear)";
+            btn.className = "btn-danger";
+        } else {
+            btn.innerText = "Sistema BLOQUEADO (Clic para Habilitar)";
+            btn.className = "btn-success";
+        }
+    }
+
+    function actualizarTablasAdmin() {
+        const secFiltro = document.getElementById('filtroSeccion').value;
+        const matFiltro = document.getElementById('filtroMateria').value;
+
+        // Asistencias
+        const asist = JSON.parse(localStorage.getItem('asistenciasUCS')) || [];
+        let htmlA = '';
+        asist.forEach(a => {
+            if((secFiltro === "Todas" || a.seccion === secFiltro) && (matFiltro === "Todas" || a.materia === matFiltro)){
+                htmlA += `<tr><td>${a.fecha}</td><td>${a.cedula}</td><td>${a.nombre}</td><td>${a.seccion}</td><td>${a.materia}</td></tr>`;
+            }
+        });
+        document.getElementById('bodyAsistencias').innerHTML = htmlA;
+
+        // Notas
+        const not = JSON.parse(localStorage.getItem('notasUCS')) || [];
+        let htmlN = '';
+        not.forEach(n => {
+            if((secFiltro === "Todas" || n.seccion === secFiltro) && (matFiltro === "Todas" || n.materia === matFiltro)){
+                let color = n.valor < 11 ? 'color: red;' : 'color: green;';
+                htmlN += `<tr><td>${n.cedula}</td><td>${n.nombre}</td><td>${n.seccion}</td><td>${n.materia}</td><td>${n.evaluacion}</td><td style="${color}">${n.valor}</td><td style="${color}">${n.estatus}</td></tr>`;
+            }
+        });
+        document.getElementById('bodyNotas').innerHTML = htmlN;
+
+        // Credenciales
+        const usuarios = JSON.parse(localStorage.getItem('usuariosUCS')) || {};
+        let htmlC = '';
+        for (let email in usuarios) {
+            let u = usuarios[email];
+            if(secFiltro === "Todas" || u.seccion === secFiltro) {
+                htmlC += `<tr><td>${u.cedula}</td><td>${u.nombre}</td><td>${u.seccion}</td><td>${email}</td><td>${u.clave}</td></tr>`;
+            }
+        }
+        document.getElementById('bodyCredenciales').innerHTML = htmlC;
+    }
+
+    function exportarWord(tableID, filename = ''){
+        var downloadLink;
+        var dataType = 'application/vnd.ms-word';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        filename = filename?filename+'.doc':'documento.doc';
+        downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        if(navigator.msSaveOrOpenBlob){
+            var blob = new Blob(['ufeff', tableHTML], { type: dataType });
+            navigator.msSaveOrOpenBlob( blob, filename);
+        }else{
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            downloadLink.download = filename;
+            downloadLink.click();
+        }
+    }
+</script>
 </body>
 </html>
