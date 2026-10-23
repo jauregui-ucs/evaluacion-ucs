@@ -198,7 +198,7 @@
         <button class="btn-success" onclick="exportarWord('tablaNotas', 'Notas_UCS')">Descargar Word</button>
         <div class="table-responsive">
             <table id="tablaNotas">
-                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Evaluación</th><th>Nota (1-20)</th><th>Estatus</th></tr></thead>
+                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Evaluación</th><th>Nota (1-20)</th><th>Estatus</th><th>Acción</th></tr></thead>
                 <tbody id="bodyNotas"></tbody>
             </table>
         </div>
@@ -410,8 +410,16 @@
 
         if(!ced || !nom || !sec) { alert("Por favor complete los datos personales."); return; }
 
+        // Evitar correos duplicados
         const userDoc = await db.collection('usuarios').doc(email).get();
         if(userDoc.exists) { alert("Este correo ya se encuentra registrado."); return; }
+
+        // Evitar cédulas duplicadas (NUEVO)
+        const querySnapshot = await db.collection('usuarios').where('cedula', '==', ced).get();
+        if(!querySnapshot.empty) { 
+            alert("¡ALERTA! Esta cédula ya fue registrada por otra persona. Si es un error, el administrador debe borrar el registro anterior primero."); 
+            return; 
+        }
 
         await db.collection('usuarios').doc(email).set({
             clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf
@@ -552,36 +560,69 @@
         });
         document.getElementById('bodyAsistencias').innerHTML = htmlA;
 
-        // Notas
+        // Notas (NUEVO: Botón de borrar nota)
         const notasSnap = await db.collection('notas').get();
         let htmlN = '';
         notasSnap.forEach(doc => {
             let n = doc.data();
+            let notaId = doc.id;
             if((secFiltro === "Todas" || n.seccion === secFiltro) && (matFiltro === "Todas" || n.materia === matFiltro)){
                 let color = n.valor < 11 ? 'color: red;' : 'color: green;';
-                htmlN += `<tr><td>${n.cedula}</td><td>${n.nombre}</td><td>${n.evaluacion}</td><td style="${color}">${n.valor}</td><td style="${color}; font-weight:bold;">${n.estatus}</td></tr>`;
+                htmlN += `<tr>
+                            <td>${n.cedula}</td>
+                            <td>${n.nombre}</td>
+                            <td>${n.evaluacion}</td>
+                            <td style="${color}">${n.valor}</td>
+                            <td style="${color}; font-weight:bold;">${n.estatus}</td>
+                            <td><button class="btn-danger" style="margin-top: 0; padding: 6px 12px; font-size: 12px;" onclick="eliminarNota('${notaId}')">Borrar</button></td>
+                          </tr>`;
             }
         });
         document.getElementById('bodyNotas').innerHTML = htmlN;
 
-        // Usuarios y botón de eliminar
+        // Usuarios (NUEVO: Detección y marcado de duplicados)
         const usuariosSnap = await db.collection('usuarios').get();
-        let htmlC = '';
+        let usuariosArray = [];
+        let conteoCedulas = {};
+
         usuariosSnap.forEach(doc => {
             let u = doc.data();
-            let email = doc.id;
+            u.email = doc.id;
+            usuariosArray.push(u);
+            conteoCedulas[u.cedula] = (conteoCedulas[u.cedula] || 0) + 1;
+        });
+
+        let htmlC = '';
+        usuariosArray.forEach(u => {
             if(secFiltro === "Todas" || u.seccion === secFiltro) {
-                htmlC += `<tr>
-                            <td>${u.cedula}</td>
+                let esRepetida = conteoCedulas[u.cedula] > 1;
+                let bgColor = esRepetida ? "background-color: #ffcccc;" : "";
+                let aviso = esRepetida ? ' <br><b style="color:red; font-size:11px;">(DUPLICADA)</b>' : '';
+                
+                htmlC += `<tr style="${bgColor}">
+                            <td>${u.cedula}${aviso}</td>
                             <td>${u.nombre}</td>
                             <td>${u.seccion}</td>
-                            <td>${email}</td>
+                            <td>${u.email}</td>
                             <td>${u.clave}</td>
-                            <td><button class="btn-danger" style="margin-top: 0; padding: 6px 12px; font-size: 12px;" onclick="eliminarEstudiante('${email}')">Eliminar</button></td>
+                            <td><button class="btn-danger" style="margin-top: 0; padding: 6px 12px; font-size: 12px;" onclick="eliminarEstudiante('${u.email}')">Eliminar</button></td>
                           </tr>`;
             }
         });
         document.getElementById('bodyCredenciales').innerHTML = htmlC;
+    }
+
+    // Función para eliminar nota (NUEVO)
+    async function eliminarNota(notaId) {
+        if(confirm(`¿Estás seguro de que deseas ELIMINAR esta nota del sistema? No podrás recuperarla.`)) {
+            try {
+                await db.collection('notas').doc(notaId).delete();
+                alert("Nota eliminada correctamente.");
+                actualizarTablasAdmin(); 
+            } catch (error) {
+                alert("Hubo un error al eliminar: " + error.message);
+            }
+        }
     }
 
     // Función para eliminar estudiante
