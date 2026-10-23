@@ -61,11 +61,11 @@
     <h2>Registro (Paso 1/2)</h2>
     <div class="form-group">
         <label>Correo Electrónico:</label>
-        <input type="email" id="regEmail" placeholder="Su correo personal">
+        <input type="email" id="regEmail" placeholder="Correo electrónico">
     </div>
     <div class="form-group">
         <label>Contraseña:</label>
-        <input type="password" id="regPassword" placeholder="Cree una contraseña">
+        <input type="password" id="regPassword" placeholder="Contraseña">
     </div>
     <button class="btn-success" onclick="goToRegisterStep2()">Siguiente Paso</button>
     <button class="btn-secondary" onclick="showSection('login-section')">Regresar</button>
@@ -208,7 +208,7 @@
         <h3>Credenciales Registradas</h3>
         <div class="table-responsive">
             <table id="tablaCredenciales">
-                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Sección</th><th>Correo</th><th>Contraseña</th></tr></thead>
+                <thead><tr><th>Cédula</th><th>Nombres y Apellidos</th><th>Sección</th><th>Correo</th><th>Contraseña</th><th>Acción</th></tr></thead>
                 <tbody id="bodyCredenciales"></tbody>
             </table>
         </div>
@@ -248,16 +248,104 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // Nueva Base de Datos de Estudiantes Extraída del PDF
     const dbEstudiantes = {
-        "31244041": { nombre: "MARLYNG YANEIDY JAIMES BLANCO", pnf: "MEDICINA", seccion: "SECCION A" },
-        "34243927": { nombre: "JOSE DAVID CONTRERAS CONTRERAS", pnf: "MEDICINA", seccion: "SECCION A" },
-        "26015341": { nombre: "SANDRA YOSBENY VERA OCHOA", pnf: "ENFERMERIA", seccion: "SECCION A" },
-        "13763023": { nombre: "JANETH DEL CARMEN SANCHEZ SALAS", pnf: "ENFERMERIA", seccion: "SECCION B" },
-        "33975828": { nombre: "GENESIS GABRIELA ROJAS ROA", pnf: "MEDICINA", seccion: "SECCION B" },
-        "26534229": { nombre: "JEIDY ESTEFANIA SANDIA PEREZ", pnf: "ENFERMERIA", seccion: "SECCION C" },
-        "24611897": { nombre: "JOEL ALEXANDER CASTRO CONTRERAS", pnf: "MEDICINA", seccion: "SECCION C" },
-        "20369899": { nombre: "MARIA ISABEL PEREZ LABRADOR", pnf: "ENFERMERIA", seccion: "SECCION D" },
-        "32581983": { nombre: "MANUEL ANTONIO MORA ARELLANO", pnf: "MEDICINA", seccion: "SECCION D" }
+        "34135086": { nombre: "ANGELLI SARHAY SÁNCHEZ V", pnf: "MEDICINA", seccion: "SECCION A" },
+        "27232447": { nombre: "GERSON JESUS MORA SÁNC", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "29544551": { nombre: "EDIXSON OMAR ARELLANO M", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "34329862": { nombre: "JORGE LUIS DUQUE VIVAS", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "26015341": { nombre: "SANDRA YOSBENY VERA OC", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "33975398": { nombre: "MARÍA DE LOS ANGELES", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "36561549": { nombre: "ROSLIBETH EYLIN CASTELLAN", pnf: "MEDICINA", seccion: "SECCION B" },
+        "32793301": { nombre: "MILAGROS CAROLINA GUERRE", pnf: "MEDICINA", seccion: "SECCION A" },
+        "33396412": { nombre: "LEYDIMAR DEL CARMEN", pnf: "MEDICINA", seccion: "SECCION B" },
+        "31808454": { nombre: "MARIELLY VALENTINA DUQUE", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "32582147": { nombre: "SOFIA MELISSA PÉREZ DUQ", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "32793421": { nombre: "AYMAR ZULEIDY OROZCO CO", pnf: "MEDICINA", seccion: "SECCION A" },
+        "32582344": { nombre: "ERIKA DEIMAR SUAREZ DIAZ", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "19578537": { nombre: "LEONOR MARIBEL CONTRERAS", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "32582037": { nombre: "FRANCY CAROLINA GIL AGUIL", pnf: "ODONTOLOGIA", seccion: "SECCION B" },
+        "33849882": { nombre: "GENESIS GABRIELA REY GARC", pnf: "MEDICINA", seccion: "SECCION D" },
+        "34243927": { nombre: "JOSÉ DAVID CONTRERAS CO", pnf: "MEDICINA", seccion: "SECCION A" },
+        "11609971": { nombre: "LORENA VILLALOBOS", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "32582780": { nombre: "DARIANNE ALEJANDRA ARELLA", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "19579681": { nombre: "LEIDDY CAROLINA COLMENAI", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "34927542": { nombre: "CESAR LEONARDO GRISALES", pnf: "MEDICINA", seccion: "SECCION C" },
+        "15926161": { nombre: "VERÓNICA DEL CARMEN ROJ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "20716511": { nombre: "LIGIA VITALINA MÁRQUEZ VAI", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "30328554": { nombre: "GABRIELA ALEJANDRA CASIQ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "20716450": { nombre: "DINORA ALICIA GUERRERO PÉ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "32582068": { nombre: "FRAIMAR CAROLINA GIL AGUI", pnf: "ODONTOLOGIA", seccion: "SECCION B" },
+        "31244041": { nombre: "MARLYNG YANEIDY JAIMES", pnf: "MEDICINA", seccion: "SECCION A" },
+        "19778762": { nombre: "YENNY BELSAY MORA CONTR", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "29544386": { nombre: "YORIANNA ISARAITH RIVERA", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "33659767": { nombre: "ANDERSON JOSÉ ZAMBRAN", pnf: "MEDICINA", seccion: "SECCION D" },
+        "30111101": { nombre: "YESSICA ANDREINA GARCIA", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "25632529": { nombre: "LEIDYS YORGELIS MATERANO", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "34199206": { nombre: "ELIAGNI PAOLA ROA AVEND", pnf: "MEDICINA", seccion: "SECCION B" },
+        "33849160": { nombre: "JENNIFER BETANIA GÓMEZ", pnf: "MEDICINA", seccion: "SECCION C" },
+        "18018368": { nombre: "ANDREINA DEL CARMEN BAI", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "30351964": { nombre: "ANGGY GABRIELA RAMÍREZ", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "30992159": { nombre: "CORIANY CONTRERAS", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "20716151": { nombre: "TATIANA JOSELYN DUQUE DE", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "27232241": { nombre: "MARÍA ALEJANDRA LABRADO", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "32334555": { nombre: "WEINY MARYEL BECERRA CO", pnf: "MEDICINA", seccion: "SECCION A" },
+        "30992350": { nombre: "CAMILA ALEXANDRA DUQUE", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "21179138": { nombre: "ROSI MARISOL ROSALES ROL", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "27232751": { nombre: "LOENDRIS DANIELA MORENO", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "24611897": { nombre: "JOEL ALEXANDER CASTRO CO", pnf: "MEDICINA", seccion: "SECCION C" },
+        "31808416": { nombre: "ARGENIS LEOBARDO VEGA F", pnf: "MEDICINA", seccion: "SECCION C" },
+        "29878408": { nombre: "RIXI CARRASQUEL", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "27709789": { nombre: "ROSSIBEL BEATRIZ SÁNCHEZ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "17527821": { nombre: "LEÍDA DEL CARMEN PÉREZ", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "26642261": { nombre: "CRISMAR JOHANA PEREZ M", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "26054229": { nombre: "SAMUEL CONTRERAS", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "19339344": { nombre: "MERARDA YUDITH RAMÍREZ", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "26015526": { nombre: "ESTEFANI MONTILVA", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "24784580": { nombre: "TORO SUÁREZ ROYMAR YOA", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "31585286": { nombre: "JOHANA CRISTINA URDANETA", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "30111196": { nombre: "IRIS GABRIELA PERNIA MUÑC", pnf: "MEDICINA", seccion: "SECCION C" },
+        "21180650": { nombre: "ANDREA NAZARETH PEREZ E", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "20369899": { nombre: "MARIA ISABEL PÉREZ LABRAC", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "26534229": { nombre: "JEIDY ESTEFANÍA SANDIA PI", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "20716443": { nombre: "KARELYS DAYANA ARELLANO", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "29848536": { nombre: "ANDRY KARIN DUEÑAS SOLA", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "20716470": { nombre: "ROSANGELA DEL CARMEN P", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "13763023": { nombre: "JANETH DEL CARMEN SÁNCH", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "25921054": { nombre: "ANA ELIZABETH PÉREZ COLM", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "33243489": { nombre: "NAHUM ELIAN BOLAÑOS RO", pnf: "MEDICINA", seccion: "SECCION B" },
+        "20717352": { nombre: "JOHANA JAQUELINE DUQUE", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "30991959": { nombre: "DULCE YSAMAR ZAMBRANO", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "24147100": { nombre: "ROSA JAKELINE MONTAÑEZ", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "20717567": { nombre: "ANA GABRIELA MEZA DUQU", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "24777212": { nombre: "ROXANNYS NERIMAR DUQUE", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "33703203": { nombre: "GRETCCY CRISMAR TORRES", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "23513525": { nombre: "JANETH CAROLINA MEZA GUT", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "19339069": { nombre: "NANCY COROMOTO MORA O", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "20717338": { nombre: "ROSMERY ARELLANO MORA", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "27232273": { nombre: "LISETH ESTEFANY RAMÍREZ", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "29917692": { nombre: "CONTRERAS ESCALANTE CRIS", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "32582545": { nombre: "CRISTHYN VALENTINA DÍAZ S", pnf: "MEDICINA", seccion: "SECCION B" },
+        "24154729": { nombre: "VARELA PÉREZ ANA LUCIA", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "13305660": { nombre: "ZULIMA YAJAIRA VARELA DE", pnf: "MEDICINA", seccion: "SECCION A" },
+        "31959932": { nombre: "CIRIANY SILVA", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "34927558": { nombre: "MILAGROS SARAHÍ MORALES", pnf: "MEDICINA", seccion: "SECCION A" },
+        "32581983": { nombre: "MANUEL ANTONIO MORA ARR", pnf: "MEDICINA", seccion: "SECCION D" },
+        "26686894": { nombre: "GERALDINE ALEXANDRA BAR", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "34927514": { nombre: "CARLIANY JHOSBERLY VILLAMI", pnf: "MEDICINA", seccion: "SECCION A" },
+        "30625689": { nombre: "ÁNGELY DESSIRE MORA MAR", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "20288718": { nombre: "MERCEDES KATERINE GUERRE", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "15926308": { nombre: "ALBA CECILIA CONTRERAS M", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "32068711": { nombre: "PAOLA ANTHONELA MA", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "27227437": { nombre: "ROXANDRYS MARÍA DUQUE", pnf: "ENFERMERIA", seccion: "SECCION A" },
+        "27709360": { nombre: "OLIVER FRANKNEY GRUESO", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "27566621": { nombre: "JHOANA NATHALY MONTILVA", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "26534324": { nombre: "ANALEYVI", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "27709186": { nombre: "MAIDA GISELLA CONTREARAS", pnf: "ENFERMERIA", seccion: "SECCION C" },
+        "21637120": { nombre: "MARÍA JHOJANA ZAMBRANO", pnf: "ENFERMERIA", seccion: "SECCION D" },
+        "29925967": { nombre: "DANIELA SUSANA GÓMEZ", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "32582399": { nombre: "DAINA YUBERLY FLOREZ ME", pnf: "ENFERMERIA", seccion: "SECCION B" },
+        "32790702": { nombre: "MARIEXY DANIELA RAMIREZ", pnf: "ENFERMERIA", seccion: "SECCION A" }
     };
 
     let currentUser = null;
@@ -270,7 +358,6 @@
         if(sectionId === 'student-panel') verificarEstadoSistema();
     }
 
-    // Funciones de la Base de Datos en la Nube
     async function verificarEstadoSistema() {
         const doc = await db.collection('config').doc('estado').get();
         if(doc.exists) sistemaActivoGlobal = doc.data().activo;
@@ -323,11 +410,9 @@
 
         if(!ced || !nom || !sec) { alert("Por favor complete los datos personales."); return; }
 
-        // Verificar si existe en la nube
         const userDoc = await db.collection('usuarios').doc(email).get();
         if(userDoc.exists) { alert("Este correo ya se encuentra registrado."); return; }
 
-        // Guardar en la nube
         await db.collection('usuarios').doc(email).set({
             clave: pass, rol: 'estudiante', cedula: ced, nombre: nom, seccion: sec, pnf: pnf
         });
@@ -348,7 +433,6 @@
             return;
         }
 
-        // Buscar en la nube
         const userDoc = await db.collection('usuarios').doc(email).get();
         if (userDoc.exists && userDoc.data().clave === pass) {
             currentUser = userDoc.data();
@@ -457,7 +541,7 @@
         const secFiltro = document.getElementById('filtroSeccion').value;
         const matFiltro = document.getElementById('filtroMateria').value;
 
-        // Descargar Asistencias de Firebase
+        // Asistencias
         const asistSnap = await db.collection('asistencias').get();
         let htmlA = '';
         asistSnap.forEach(doc => {
@@ -468,7 +552,7 @@
         });
         document.getElementById('bodyAsistencias').innerHTML = htmlA;
 
-        // Descargar Notas de Firebase
+        // Notas
         const notasSnap = await db.collection('notas').get();
         let htmlN = '';
         notasSnap.forEach(doc => {
@@ -480,17 +564,37 @@
         });
         document.getElementById('bodyNotas').innerHTML = htmlN;
 
-        // Descargar Usuarios de Firebase
+        // Usuarios y botón de eliminar
         const usuariosSnap = await db.collection('usuarios').get();
         let htmlC = '';
         usuariosSnap.forEach(doc => {
             let u = doc.data();
             let email = doc.id;
             if(secFiltro === "Todas" || u.seccion === secFiltro) {
-                htmlC += `<tr><td>${u.cedula}</td><td>${u.nombre}</td><td>${u.seccion}</td><td>${email}</td><td>${u.clave}</td></tr>`;
+                htmlC += `<tr>
+                            <td>${u.cedula}</td>
+                            <td>${u.nombre}</td>
+                            <td>${u.seccion}</td>
+                            <td>${email}</td>
+                            <td>${u.clave}</td>
+                            <td><button class="btn-danger" style="margin-top: 0; padding: 6px 12px; font-size: 12px;" onclick="eliminarEstudiante('${email}')">Eliminar</button></td>
+                          </tr>`;
             }
         });
         document.getElementById('bodyCredenciales').innerHTML = htmlC;
+    }
+
+    // Función para eliminar estudiante
+    async function eliminarEstudiante(email) {
+        if(confirm(`¿Estás seguro de que deseas eliminar el registro de ${email}? Esto le permitirá registrarse nuevamente desde cero.`)) {
+            try {
+                await db.collection('usuarios').doc(email).delete();
+                alert("Estudiante eliminado correctamente de la base de datos.");
+                actualizarTablasAdmin(); 
+            } catch (error) {
+                alert("Hubo un error al eliminar: " + error.message);
+            }
+        }
     }
 
     function exportarWord(tableID, filename = ''){
